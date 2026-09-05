@@ -32,6 +32,7 @@ npm run preview    # serves dist/ locally
 
 - **A new project**: copy one `<article class="card">` block in `index.html`, drop a real screenshot in `public/images/`, and keep the three-fact list. The sticky stack pins every card except the last automatically.
 - **A new role**: copy one `<article class="exp">` block. Dates use a plain hyphen ("Aug 2026 - Present").
+- **Hero headlines**: the rotating claims live in the `HEADLINES` array in `src/main.ts` as [line one, line two, accented ending]. Keep line one under 18 characters and line two under 19 so nothing wraps at desktop.
 - **Toolbox logos**: edit the `LOGOS` array in `src/main.ts`; icons come from the `simple-icons` package, so check the export exists (`siSomething`).
 - **A new photo**: export it to `public/images/me/` at about 1200 to 1500px on the long edge (strip metadata), then copy one `<figure class="photo">` block. Gallery images need `width`/`height` attributes so the horizontal pan measures correctly before they load.
 

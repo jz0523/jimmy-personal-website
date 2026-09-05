@@ -89,6 +89,58 @@ ScrollTrigger.create({
 const prints = gsap.utils.toArray<HTMLElement>(".ph");
 prints.forEach((el) => gsap.set(el, { rotation: Number(el.dataset.rot || 0) }));
 
+/* ---------- Hero headline rotation: four claims, each backed by a section below ---------- */
+const HEADLINES: Array<[string, string, string]> = [
+  ["I build AI systems", "for ", "real users."],
+  ["I build worlds", "you can ", "walk into."],
+  ["I turn research", "into ", "real products."],
+  ["I ship software", "people ", "pay for."],
+];
+const lineInners = gsap.utils.toArray<HTMLElement>(".hero .line-inner");
+function setHeadline(i: number) {
+  const [a, b, c] = HEADLINES[i];
+  lineInners[0].textContent = a;
+  lineInners[1].textContent = b;
+  const em = document.createElement("em");
+  em.className = "accent";
+  em.textContent = c;
+  lineInners[1].appendChild(em);
+}
+let headlineIndex = 0;
+let headlineTimer: gsap.core.Tween | null = null;
+let heroInView = true;
+function scheduleHeadline(delay = 4) {
+  headlineTimer?.kill();
+  if (prefersReduced || lineInners.length < 2) return;
+  headlineTimer = gsap.delayedCall(delay, swapHeadline);
+}
+function swapHeadline() {
+  if (document.hidden || !heroInView) return; // resumes from the visibility handlers
+  const next = (headlineIndex + 1) % HEADLINES.length;
+  gsap
+    .timeline({
+      onComplete: () => {
+        headlineIndex = next;
+        scheduleHeadline();
+      },
+    })
+    .to(lineInners, { yPercent: -112, duration: 0.55, ease: "power3.in", stagger: 0.07 })
+    .add(() => setHeadline(next))
+    .fromTo(lineInners, { yPercent: 112 }, { yPercent: 0, duration: 0.95, ease: "power4.out", stagger: 0.09 });
+}
+if (!prefersReduced && lineInners.length === 2) {
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) scheduleHeadline(1.5);
+  });
+  new IntersectionObserver(
+    (entries) => {
+      heroInView = entries[0].isIntersecting;
+      if (heroInView) scheduleHeadline(1.5);
+    },
+    { threshold: 0.2 },
+  ).observe(document.querySelector(".hero .h1")!);
+}
+
 /* ---------- Hero entrance: name -> claim -> proof -> action -> the person. Waits for the display font. ---------- */
 if (prefersReduced) {
   gsap.set(".hero-anim", { visibility: "visible" });
@@ -97,7 +149,11 @@ if (prefersReduced) {
     document.fonts ? document.fonts.ready : Promise.resolve(),
     new Promise<void>((r) => setTimeout(r, 800)),
   ]);
-  const tl = gsap.timeline({ paused: true, defaults: { ease: "power4.out" } });
+  const tl = gsap.timeline({
+    paused: true,
+    defaults: { ease: "power4.out" },
+    onComplete: () => scheduleHeadline(3.2),
+  });
   tl.from(".hero .eyebrow", { y: 14, opacity: 0, duration: 0.8 }, 0.05)
     .from(".hero .line-inner", { yPercent: 112, duration: 1.25, stagger: 0.1 }, 0.1)
     .from(".hero-sub", { y: 18, opacity: 0, duration: 0.9 }, 0.55)
