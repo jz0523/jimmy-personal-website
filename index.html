@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jimmy Zhong</title>
+    <meta name="description" content="Jimmy (Zhiyang) Zhong: founding engineer, AI agent builder, and Mathematics and Computer Science student at the University of Pennsylvania." />
+    <meta property="og:title" content="Jimmy Zhong" />
+    <meta property="og:description" content="Founding engineer, AI agent builder, and Math and CS student at Penn. Selected work, experience, and contact." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="images/me/portrait.jpg" />
+    <meta name="theme-color" content="#f4f4f1" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <script>document.documentElement.classList.replace('no-js', 'js');</script>
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="nav" id="nav">
+      <div class="nav-inner container">
+        <a href="#top" class="wordmark">Jimmy Zhong</a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#work">Work</a>
+          <a href="#experience">Experience</a>
+          <a href="#about">About</a>
+        </nav>
+        <a href="mailto:zzhong29@sas.upenn.edu" class="btn btn-primary btn-sm magnetic nav-cta">Get in touch</a>
+        <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="menu"><span data-open>Menu</span><span data-close hidden>Close</span></button>
+      </div>
+    </header>
+
+    <div class="menu" id="menu" aria-hidden="true">
+      <a href="#work">Work</a>
+      <a href="#experience">Experience</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a class="menu-mail" href="mailto:zzhong29@sas.upenn.edu">zzhong29@sas.upenn.edu</a>
+    </div>
+
+    <main id="top">
+      <!-- HERO -->
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow hero-anim">University of Pennsylvania · Class of 2029</p>
+            <h1 class="h1 hero-anim">
+              <span class="line"><span class="line-inner">I build AI systems</span></span>
+              <span class="line"><span class="line-inner">for <em class="accent">real users.</em></span></span>
+            </h1>
+            <p class="lede hero-sub hero-anim">Founding engineer at Welta AI, Franklink <span class="nowrap">co-founder</span>, Math and CS at Penn. Now on Chrona’s generation pipeline at Altverse.</p>
+            <div class="hero-ctas hero-anim">
+              <a href="mailto:zzhong29@sas.upenn.edu" class="btn btn-primary magnetic">Get in touch</a>
+              <a href="resume.pdf" class="btn btn-ghost magnetic" target="_blank" rel="noopener">View resume</a>
+            </div>
+          </div>
+          <div class="hero-photos hero-anim">
+            <figure class="ph ph-back-l" data-rot="-6">
+              <img src="images/me/snowboarding.jpg" alt="Jimmy snowboarding among snow-covered pines outside Seattle" />
+            </figure>
+            <figure class="ph ph-back-r" data-rot="4">
+              <img src="images/me/tennis-friend.jpg" alt="Jimmy flashing a peace sign beside a friend on a tennis court at night" />
+            </figure>
+            <figure class="ph ph-front" data-rot="0">
+              <img src="images/me/portrait.jpg" alt="Portrait of Jimmy Zhong" loading="eager" fetchpriority="high" />
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- WORK -->
+      <section id="work" class="section work">
+        <div class="container">
+          <h2 class="h2 reveal">Selected work</h2>
+          <p class="lede reveal">Five things I built end to end: a painted 3D world, a renderer, a game, a research tool, and a funded product.</p>
+        </div>
+
+        <div class="stack container">
+          <article class="card">
+            <div class="card-inner">
+              <div class="card-body">
+                <div class="card-top"><span class="mono">2026</span><span class="mono">Real-time ink rendering</span></div>
+                <h3 class="h3">World of Painting</h3>
+                <p class="card-desc">A first-person walk inside Along the River During the Qingming Festival: Song-dynasty Kaifeng rebuilt as a 3D world that still reads as ink on silk.</p>
+                <ul class="facts">
+                  <li>Real-time ink pipeline: silk ground cut from the original scan, brush-contour outlines, water drawn as strokes</li>
+                  <li>24 human and 5 animal figure recipes across 13 poses, all true geometry with depth and normals</li>
+                  <li>351 tests; every scene judged by an independent critic loop, 13 rounds so far</li>
+                </ul>
+                <div class="chips"><span>Three.js</span><span>TypeScript</span><span>GLSL</span><span>Vite</span><span>Playwright</span></div>
+                <a class="link-arrow" href="https://github.com/jz0523/world-of-painting" target="_blank" rel="noopener">Source on GitHub</a>
+              </div>
+              <div class="card-media">
+                <img src="images/wop-bridge-southeast.jpg" alt="The Rainbow Bridge of Kaifeng rendered as ink on silk, seen from the south-east bank" loading="lazy" />
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-inner">
+              <div class="card-body">
+                <div class="card-top"><span class="mono">2026</span><span class="mono">Real-time rendering</span></div>
+                <h3 class="h3">Neon Street</h3>
+                <p class="card-desc">A rain-soaked cyberpunk block you can walk through, delivered as one 787 KB HTML file. No asset packs, no server, no dependencies.</p>
+                <ul class="facts">
+                  <li>Hand-written WebGL2 forward renderer, one draw call per frame</li>
+                  <li>132k triangles, 135 placed lights, 48 shaded per fragment</li>
+                  <li>5,500 rain instances lit by the same light set</li>
+                </ul>
+                <div class="chips"><span>WebGL2</span><span>GLSL</span><span>Python</span><span>Blender</span></div>
+                <a class="link-arrow" href="https://github.com/jz0523/cyberpunk-test" target="_blank" rel="noopener">Source on GitHub</a>
+              </div>
+              <div class="card-media">
+                <img src="images/neon-hero.jpg" alt="A rain-soaked neon alley at night, wet asphalt reflecting magenta and cyan signage" loading="lazy" />
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-inner">
+              <div class="card-body">
+                <div class="card-top"><span class="mono">2026</span><span class="mono">Browser game</span></div>
+                <h3 class="h3">Odyssey: Nobody</h3>
+                <p class="card-desc">A six-act, first-person retelling of Odyssey Book IX, from the lotus-eaters to the blinding of Polyphemus, running entirely in the browser.</p>
+                <ul class="facts">
+                  <li>Six Three.js scenes, each built and torn down with its own lighting and collision</li>
+                  <li>Every string switches between Chinese and English instantly</li>
+                  <li>86 voice lines, 96 passing unit tests</li>
+                </ul>
+                <div class="chips"><span>Three.js</span><span>TypeScript</span><span>Vite</span><span>Vitest</span></div>
+                <a class="link-arrow" href="https://github.com/jz0523/Odyssy-Nobody" target="_blank" rel="noopener">Source on GitHub</a>
+              </div>
+              <div class="card-media">
+                <img src="images/odyssey-cover.jpg" alt="Title art for Odyssey: Nobody, a ship at sea beneath a stormy sky" loading="lazy" />
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-inner">
+              <div class="card-body">
+                <div class="card-top"><span class="mono">2024 - 2025</span><span class="mono">Climate research</span></div>
+                <h3 class="h3">Migracoast</h3>
+                <p class="card-desc">A coastal inundation and climate-risk model for nine U.S. states, released as an open-source research tool.</p>
+                <ul class="facts">
+                  <li>NOAA inundation rasters, IPCC AR6 sea-level projections, and storm-event records</li>
+                  <li>Risk-score time series for major cities, projected from 2020 to 2100</li>
+                  <li>6,500+ users at migracoast.com</li>
+                </ul>
+                <div class="chips"><span>Python</span><span>GIS</span><span>Machine learning</span><span>Jupyter</span></div>
+                <a class="link-arrow" href="https://github.com/jz0523/migracoast" target="_blank" rel="noopener">Source on GitHub</a>
+              </div>
+              <div class="card-media card-media--light">
+                <img src="images/migracoast-map.png" alt="Generated inundation map showing projected flooding along a coastline" loading="lazy" />
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-inner">
+              <div class="card-body">
+                <div class="card-top"><span class="mono">2025 - 2026</span><span class="mono">AI agent, funded</span></div>
+                <h3 class="h3">Franklink</h3>
+                <p class="card-desc">The first AI networking agent native to iMessage. It learns what you need and who can help, then makes the introduction.</p>
+                <ul class="facts">
+                  <li>LangGraph orchestrator routing every message through onboarding, recommendation, networking, or chat</li>
+                  <li>Matches on need and value: what you are looking for against what others can offer</li>
+                  <li>Uses your email for context (a conference, a course, a hackathon) and finds people doing the same</li>
+                </ul>
+                <div class="chips"><span>Python</span><span>FastAPI</span><span>LangGraph</span><span>Azure OpenAI</span><span>Supabase</span></div>
+                <a class="link-arrow" href="https://github.com/jz0523/franklink_imessage_agent" target="_blank" rel="noopener">Source on GitHub</a>
+              </div>
+              <div class="card-media card-media--brand">
+                <img class="brand-mark" src="images/franklink-banner.png" alt="Franklink logo and wordmark" width="1237" height="323" loading="lazy" />
+                <div class="stat-big">
+                  <span class="stat-num">500+</span>
+                  <span class="stat-label">introductions made by the agent</span>
+                </div>
+                <div class="stat-row">
+                  <div><span class="stat-mid">$50K</span><span class="stat-label">angel funding</span></div>
+                  <div><span class="stat-mid">13</span><span class="stat-label">person team</span></div>
+                  <div><span class="stat-mid">2,000+</span><span class="stat-label">messages handled</span></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- EXPERIENCE -->
+      <section id="experience" class="section experience">
+        <div class="container exp-grid">
+          <div class="exp-side">
+            <h2 class="h2 reveal">Experience</h2>
+            <p class="lede reveal">Five roles in two years, from independent research to founding engineer.</p>
+            <figure class="photo side-photo reveal">
+              <div class="photo-frame"><img src="images/me/hackathon-judge.jpg" alt="Jimmy at a lectern in a lecture hall, running a hackathon workshop" width="1400" height="1050" loading="lazy" /></div>
+              <figcaption>Running a workshop and judging at a hackathon</figcaption>
+            </figure>
+            <figure class="photo side-photo side-photo--second reveal">
+              <div class="photo-frame"><img src="images/me/hackathon-team.jpg" alt="Jimmy with his hackathon team, sitting on red stairs" width="900" height="1200" loading="lazy" /></div>
+              <figcaption>Competing in a hackathon as team lead</figcaption>
+            </figure>
+          </div>
+          <div class="exp-list">
+            <div class="exp-rail reveal" aria-hidden="true"><span class="exp-rail-fill"></span></div>
+
+            <article class="exp reveal">
+              <div class="exp-meta"><span class="mono">Aug 2026 - Present</span></div>
+              <div class="exp-main">
+                <h3 class="h4">Altverse</h3>
+                <p class="role">Product Engineering Intern, Generation Pipeline</p>
+                <p class="exp-context">Chrona (chrona.gg): a persistent shared world whose assets, buildings, and scenes are generated by its users from text prompts.</p>
+                <ul class="facts">
+                  <li>Standardized the generation pipeline into a serialization layer that chains single assets into persistent, editable scenes</li>
+                  <li>Shipped it into the live public world and the LA Tech Week showcase, drawing 10 artists with 10K+ followers each</li>
+                  <li>Designed and built personalized 3D interactive worlds for artists with Three.js and Tripo assets, reaching 200K+ views on X</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="exp reveal">
+              <div class="exp-meta"><span class="mono">Mar 2026 - Sep 2026</span></div>
+              <div class="exp-main">
+                <h3 class="h4">Welta AI</h3>
+                <p class="role">Founding Full-Stack Engineer</p>
+                <p class="exp-context">AI advertising campaign management (welta.ai). Five-engineer founding team, three paying business customers, ten-plus live campaigns.</p>
+                <ul class="facts">
+                  <li>Architected the multi-agent campaign manager: cross-platform performance review went from 20 manual minutes to a 5-second query</li>
+                  <li>Built the LLM-driven creative-generation flow for programmatic ad creative, cutting variant generation from over an hour to 2 minutes</li>
+                  <li>Applied reinforcement learning to performance data so budget and targeting adjust automatically across live campaigns</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="exp reveal">
+              <div class="exp-meta"><span class="mono">Jun 2026 - Aug 2026</span></div>
+              <div class="exp-main">
+                <h3 class="h4">DeepWisdom (MetaGPT)</h3>
+                <p class="role">Product Manager Intern</p>
+                <p class="exp-context">Atoms (atoms.dev): an AI website-building agent with 1.2M monthly visits and 70K GitHub stars.</p>
+                <ul class="facts">
+                  <li>Designed and ran A/B tests routing tailored prompts by user intent, lifting click-through on generated sites by 23%</li>
+                  <li>Analyzed a 20,000-user experiment showing style guidance made users 15% more likely to publish, then shipped the feature</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="exp reveal">
+              <div class="exp-meta"><span class="mono">Sep 2025 - Apr 2026</span></div>
+              <div class="exp-main">
+                <h3 class="h4">Franklink</h3>
+                <p class="role">Co-founder and Technical Lead</p>
+                <p class="exp-context">The first AI networking agent native to iMessage.</p>
+                <ul class="facts">
+                  <li>Set the technical direction and led the weekly roadmap reviews that broke work into per-engineer tasks and marketing targets</li>
+                  <li>Built the agent on LangGraph with a ReAct loop across back end, data enrichment, and web, deployed on AWS</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="exp reveal">
+              <div class="exp-meta"><span class="mono">Jul 2024 - Aug 2025</span></div>
+              <div class="exp-main">
+                <h3 class="h4">Migracoast</h3>
+                <p class="role">Independent Machine Learning and GIS Research</p>
+                <p class="exp-context">Coastal climate-risk modeling across nine U.S. states.</p>
+                <ul class="facts">
+                  <li>Built the multivariate model on sea-level, flood-frequency, housing, and local-vulnerability datasets</li>
+                  <li>Published the model and its data pipeline for other researchers and coastal planners to reuse</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about" class="section about">
+        <div class="container about-grid">
+          <div class="about-copy">
+            <h2 class="h2 reveal">About</h2>
+            <p class="bio reveal">I’m Jimmy, a Mathematics and Computer Science student at the University of Pennsylvania, Class of 2029. Over the last two years I have built AI products with real users: an iMessage networking agent, an ad-campaign manager used by paying customers, and a climate-risk model used by more than 6,500 people.</p>
+            <p class="bio reveal">I care about the whole stack, from shader code to the interface a customer sees. Away from the keyboard: squash, tennis, guitar, poker, and travel.</p>
+            <dl class="facts-grid reveal">
+              <div>
+                <dt>Education</dt>
+                <dd>University of Pennsylvania, B.A. Mathematics and Computer Science, Class of 2029. GPA 3.81.</dd>
+              </div>
+              <div>
+                <dt>Now</dt>
+                <dd>Product Engineering Intern at Altverse, on Chrona’s generation pipeline.</dd>
+              </div>
+              <div>
+                <dt>Languages</dt>
+                <dd>English, Mandarin (native), Japanese (conversational)</dd>
+              </div>
+              <div>
+                <dt>Based in</dt>
+                <dd>Philadelphia, PA</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="about-photos reveal">
+            <figure class="photo photo-tall">
+              <div class="photo-frame"><img src="images/me/with-bubu.jpg" alt="Jimmy lying on a bed beside his ragdoll cat" width="900" height="1200" loading="lazy" /></div>
+              <figcaption>With Bubu, my ragdoll cat</figcaption>
+            </figure>
+            <figure class="photo photo-wide">
+              <div class="photo-frame"><img src="images/me/bubu.jpg" alt="Bubu the ragdoll cat sitting on tiled floor" width="1200" height="900" loading="lazy" /></div>
+              <figcaption>Bubu</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- OFF THE CLOCK -->
+      <section id="life" class="section offclock">
+        <div class="container">
+          <h2 class="h2 reveal">Off the clock</h2>
+          <p class="lede reveal">Courts, slopes, strings, and the occasional long trip.</p>
+        </div>
+        <div class="gallery-wrap">
+          <div class="gallery-track">
+            <figure class="photo">
+              <div class="photo-frame"><img src="images/me/squash.jpg" alt="Jimmy on a squash court in a Tabor Squash shirt, holding a racket toward the camera" width="801" height="1200" /></div>
+              <figcaption>Squash at Tabor</figcaption>
+            </figure>
+            <figure class="photo">
+              <div class="photo-frame"><img src="images/me/squash-coach.jpg" alt="Jimmy smiling beside his squash coach" width="1200" height="900" /></div>
+              <figcaption>With my squash coach and mentor</figcaption>
+            </figure>
+            <figure class="photo">
+              <div class="photo-frame"><img src="images/me/tennis-penn.jpg" alt="Jimmy sitting on a tennis court at Penn after a session" width="1400" height="1050" /></div>
+              <figcaption>Tennis at Penn</figcaption>
+            </figure>
+            <figure class="photo">
+              <div class="photo-frame"><img src="images/me/guitar.jpg" alt="Jimmy singing while playing an acoustic guitar" width="1206" height="676" /></div>
+              <figcaption>Playing guitar</figcaption>
+            </figure>
+            <figure class="photo">
+              <div class="photo-frame"><img src="images/me/key-west.jpg" alt="Jimmy and a friend parasailing over the sea in Key West" width="1500" height="1000" /></div>
+              <figcaption>Parasailing in Key West with friends</figcaption>
+            </figure>
+            <figure class="photo">
+              <div class="photo-frame"><img src="images/me/japan.jpg" alt="Jimmy standing on Shichirigahama beach in Japan, looking out at the sea" width="1500" height="1125" /></div>
+              <figcaption>Shichirigahama, Japan. My favorite place.</figcaption>
+            </figure>
+            <figure class="photo">
+              <div class="photo-frame"><img src="images/me/mountains.jpg" alt="Jimmy walking a boardwalk toward snow-capped mountains" width="900" height="1200" /></div>
+              <figcaption>Traveling</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- RECOGNITION -->
+      <section class="section recognition">
+        <div class="container">
+          <h2 class="h2 reveal">Research, awards, and leadership</h2>
+          <div class="rec-grid">
+            <div class="rec-col reveal">
+              <h3 class="rec-label">Research</h3>
+              <ul>
+                <li>Migracoast: coastal climate-risk modeling across nine U.S. states, open-sourced (2024 to 2025)</li>
+                <li>Presented “The Impacts of Income Inequality on China’s Carbon Emissions” at the International Conference on Economics</li>
+                <li>Modeled Massachusetts coastal vertebrate biodiversity under warming and acidification scenarios with CMIP5 projections</li>
+              </ul>
+            </div>
+            <div class="rec-col reveal">
+              <h3 class="rec-label">Awards</h3>
+              <ul>
+                <li>Winner, Hybrid Intelligence Track, Start-Up in a Weekend Hackathon (2025): a career-counseling agent shipped in 48 hours</li>
+                <li>Finalist, Model Entrepreneur Competition (2023): pitched a marine waste collection robot</li>
+              </ul>
+            </div>
+            <div class="rec-col reveal">
+              <h3 class="rec-label">Leadership</h3>
+              <ul>
+                <li>Sponsorship Chair, Wharton China Association: sponsor outreach for the Penn Wharton China Summit</li>
+                <li>Founder and organizer, TEDxYouth at Tabor Academy: 100 attendees</li>
+                <li>Member, Wharton Hedge Fund Club (Global Macro) and Penn Venture Lab</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOLBOX -->
+      <section class="section toolbox">
+        <div class="container">
+          <h2 class="h2 reveal">Toolbox</h2>
+        </div>
+        <div class="marquee reveal" aria-hidden="true">
+          <div class="marquee-track" id="marquee-track"></div>
+        </div>
+        <div class="container">
+          <div class="tool-groups">
+            <div class="tool-group reveal">
+              <h3>Languages</h3>
+              <p>Python, TypeScript, Java, OCaml, C++, SQL, GLSL, LaTeX</p>
+            </div>
+            <div class="tool-group reveal">
+              <h3>AI and ML</h3>
+              <p>LLM agent architecture, LangGraph, ReAct, reinforcement learning, prompt evaluation, A/B testing, deep learning</p>
+            </div>
+            <div class="tool-group reveal">
+              <h3>Web and 3D</h3>
+              <p>Full-stack web development, React, Next.js, FastAPI, Three.js, WebGL2, OAuth</p>
+            </div>
+            <div class="tool-group reveal">
+              <h3>Data and tools</h3>
+              <p>Supabase, PostgreSQL, Docker, Git, GIS, Jupyter, Blender, SPSS</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact" class="section contact">
+        <canvas id="field" class="contact-field" aria-hidden="true"></canvas>
+        <div class="container contact-inner">
+          <h2 class="h1 reveal">Let’s talk about what you’re building.</h2>
+          <p class="lede reveal">Recruiting, collaborating, or just curious: my inbox is open.</p>
+          <a class="email reveal" href="mailto:zzhong29@sas.upenn.edu">zzhong29@sas.upenn.edu</a>
+          <div class="socials reveal">
+            <a href="https://www.linkedin.com/in/jimmy-zhong-517973242/" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://github.com/jz0523" target="_blank" rel="noopener">GitHub</a>
+            <a href="resume.pdf" target="_blank" rel="noopener">View resume</a>
+          </div>
+          <footer class="footer">
+            <span>Jimmy Zhong</span>
+            <span>2026</span>
+          </footer>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
