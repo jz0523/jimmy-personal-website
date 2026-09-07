@@ -5,3 +5,10 @@ dist
 # source copies already shipped from public/
 Franklink Banner 2.png
 Zhong_Jimmy_Resume.pdf
+
+# screenshot output from tools/shoot.py
+shots
+
+# raw Tripo exports and the pose renders they came from; the optimized copies live in public/models
+Model GLB/
+Model Image/

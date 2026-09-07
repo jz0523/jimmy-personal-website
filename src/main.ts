@@ -32,6 +32,7 @@ import {
   siBlender,
 } from "simple-icons";
 import { mountField } from "./field";
+import { mountFigures } from "./figures";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -439,6 +440,13 @@ if (canvas) {
   });
   if (!handle) canvas.remove();
 }
+
+/* ---------- Figures: five poses of the figurine, one per section that has room for it ---------- */
+const figures = mountFigures({ reduced: prefersReduced, finePointer });
+if (!figures) document.documentElement.classList.add("no-figures");
+// Handles for the screenshot tooling in tools/shoot.py
+(window as unknown as { __figures?: unknown; __lenis?: unknown }).__figures = figures;
+(window as unknown as { __figures?: unknown; __lenis?: unknown }).__lenis = lenis;
 
 /* ---------- Magnetic CTAs: feedback that the button is live ---------- */
 if (finePointer && !prefersReduced) {
