@@ -46,7 +46,9 @@ is a wall of tiles. Adding objects there would crowd the page.
 - Scroll: as a slot travels through the viewport its figure turns about 30 degrees on its base
   (ScrollTrigger progress, no tweens, fully reversible).
 - Pointer (fine pointers only): the figure turns up to about 17 degrees toward the cursor and the
-  camera dips or rises slightly, so it appears to look at you.
+  camera dips or rises slightly, so it appears to look at you. The hero greeter tracks the cursor
+  much more (about 40 degrees, a stronger tilt, a small lean toward the cursor, faster response) and
+  pops and rocks once when the pointer reaches it, so it reads as waving at you wherever you are.
 - Idle: a two-degree sway, so the object reads as alive without floating.
 - Enter: the first time a figure is on screen with its model loaded it scales in from zero with a
   short turn (`back.out`), the hero one waiting 0.9 s for the headline and prints to land first.

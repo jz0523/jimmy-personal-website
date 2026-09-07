@@ -25,11 +25,17 @@ type Spec = {
   fit: number;
   /** Camera elevation above the figure's mid-height, radians. */
   elev: number;
+  /** Multiplier on the pointer turn and tilt. The greeter tracks the cursor far more than the others. */
+  look?: number;
+  /** How far the figure slides toward the cursor at full turn, in model units. */
+  lean?: number;
+  /** Pops and rocks once when the pointer reaches it. */
+  greet?: boolean;
 };
 
 // Plinth heights were measured in Blender from the largest up-facing face area near the floor.
 const SPECS: Record<string, Spec> = {
-  wave: { file: "models/wave.glb", base: 0.064, yaw: 0.12, fit: 0.86, elev: 0.16 },
+  wave: { file: "models/wave.glb", base: 0.064, yaw: 0.12, fit: 0.86, elev: 0.16, look: 2.4, lean: 0.05, greet: true },
   laptop: { file: "models/laptop.glb", base: 0.087, yaw: -0.4, fit: 0.86, elev: 0.22 },
   present: { file: "models/present.glb", base: 0.048, yaw: 0.3, fit: 0.88, elev: 0.14 },
   cat: { file: "models/cat.glb", base: 0.072, yaw: -0.18, fit: 0.86, elev: 0.17 },
@@ -77,6 +83,9 @@ type Slot = {
   intro: number;
   introPlayed: boolean;
   spin: number;
+  wiggle: number;
+  pop: number;
+  greeting: boolean;
   look: number;
   lookTarget: number;
   tilt: number;
@@ -185,6 +194,9 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
       intro: opts.reduced ? 1 : 0,
       introPlayed: false,
       spin: 0,
+      wiggle: 0,
+      pop: 0,
+      greeting: false,
       look: 0,
       lookTarget: 0,
       tilt: 0,
@@ -284,6 +296,21 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
       if (!s.model) return;
       gsap.to(s, { spin: `+=${Math.PI * 2}`, duration: 1.4, ease: "power3.inOut" });
     });
+    // The greeter says hello when the pointer reaches it: a small pop and a quick rock, then settle.
+    if (s.spec.greet && opts.finePointer && !opts.reduced) {
+      s.el.addEventListener("pointerenter", () => {
+        if (!s.model || s.greeting) return;
+        s.greeting = true;
+        gsap
+          .timeline({ onComplete: () => (s.greeting = false) })
+          .to(s, { pop: 1, duration: 0.22, ease: "power2.out" }, 0)
+          .to(s, { pop: 0, duration: 0.75, ease: "elastic.out(1, 0.45)" }, 0.22)
+          .to(s, { wiggle: 0.14, duration: 0.16, ease: "power2.out" }, 0)
+          .to(s, { wiggle: -0.11, duration: 0.2, ease: "power1.inOut" }, 0.16)
+          .to(s, { wiggle: 0.05, duration: 0.18, ease: "power1.inOut" }, 0.36)
+          .to(s, { wiggle: 0, duration: 0.3, ease: "power2.out" }, 0.54);
+      });
+    }
   });
 
   let px = -1;
@@ -346,25 +373,28 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
       }
       if (!s.introPlayed) playIntro(s);
 
+      const lookK = s.spec.look ?? 1;
       if (px >= 0) {
         const cx = r.left + r.width / 2;
         const cy = r.top + r.height * 0.45;
-        s.lookTarget = THREE.MathUtils.clamp((px - cx) / (vw * 0.5), -1, 1) * LOOK_TURN;
-        s.tiltTarget = THREE.MathUtils.clamp((py - cy) / (vh * 0.5), -1, 1) * LOOK_TILT;
+        s.lookTarget = THREE.MathUtils.clamp((px - cx) / (vw * 0.5), -1, 1) * LOOK_TURN * lookK;
+        s.tiltTarget = THREE.MathUtils.clamp((py - cy) / (vh * 0.5), -1, 1) * LOOK_TILT * (1 + (lookK - 1) * 0.5);
       } else {
         s.lookTarget = 0;
         s.tiltTarget = 0;
       }
-      const k = 1 - Math.exp(-dt * 5);
+      const k = 1 - Math.exp(-dt * (s.spec.greet ? 7 : 5));
       s.look += (s.lookTarget - s.look) * k;
       s.tilt += (s.tiltTarget - s.tilt) * k;
 
       const sway = opts.reduced ? 0 : Math.sin(time * 0.7 + s.phase) * SWAY;
       const scrollTurn = opts.reduced ? 0 : (s.progress - 0.5) * SCROLL_TURN;
-      const yaw = s.spec.yaw + scrollTurn + s.look + sway + s.spin + (1 - s.intro) * -1.2;
-      const scale = Math.max(0.001, s.intro);
+      const yaw = s.spec.yaw + scrollTurn + s.look + sway + s.spin + s.wiggle + (1 - s.intro) * -1.2;
+      const scale = Math.max(0.001, s.intro) * (1 + s.pop * 0.07);
+      const lean = s.spec.lean ? (s.look / (LOOK_TURN * lookK)) * s.spec.lean : 0;
       s.root.rotation.y = yaw;
       s.root.scale.setScalar(scale);
+      s.root.position.x = lean;
 
       const aspect = r.width / r.height;
       const h = 1 - s.spec.base;
@@ -384,7 +414,7 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
       s.camera.position.set(0, ty + d * Math.sin(el), d * Math.cos(el));
       s.camera.lookAt(0, ty, 0);
 
-      const sig = `${r.left | 0},${r.top | 0},${r.width | 0},${r.height | 0},${yaw.toFixed(3)},${scale.toFixed(3)},${s.tilt.toFixed(3)}`;
+      const sig = `${r.left | 0},${r.top | 0},${r.width | 0},${r.height | 0},${yaw.toFixed(3)},${scale.toFixed(3)},${s.tilt.toFixed(3)},${lean.toFixed(3)}`;
       if (sig !== s.last) {
         s.last = sig;
         dirty = true;

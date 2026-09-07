@@ -36,6 +36,12 @@ async def main():
         await page.screenshot(path=f"{OUT}/i4_spin_mid.png", clip=CLIP)
         await page.wait_for_timeout(1500)
         await page.screenshot(path=f"{OUT}/i5_spin_done.png", clip=CLIP)
+        await page.hover(".figure-hero")
+        await page.wait_for_timeout(180)
+        await page.screenshot(path=f"{OUT}/i7_greet.png", clip=CLIP)
+        await page.wait_for_timeout(1200)
+        await page.mouse.move(720, 450, steps=4)
+        await page.wait_for_timeout(600)
         await page.evaluate("window.scrollTo(0, 320)")
         await page.wait_for_timeout(1000)
         c2 = dict(CLIP); c2["y"] = CLIP["y"] - 320

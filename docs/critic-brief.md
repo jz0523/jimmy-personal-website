@@ -47,7 +47,10 @@ first. Novelty is not a goal; restraint is.
 4. The photos remain the identity anchors. The hero figure sits in front of the prints and must not
    cover the portrait's face or the tennis photo's subject.
 5. Motion is scroll-turn (about 30 degrees across the viewport), pointer look, a two-degree idle
-   sway, an enter pop, and a click spin. No floating, no bobbing, no particles, no glow.
+   sway, an enter pop, and a click spin. No floating, no bobbing, no particles, no glow. The hero
+   greeter is the exception the owner asked for: it turns up to about 40 degrees toward the cursor,
+   tilts with its height, leans a few pixels toward it, and pops and rocks once when the pointer
+   reaches it. The other four keep the quiet 17-degree look.
 6. Site rules that already hold on `main`: zero em or en dashes in visible text, one eyebrow on the
    whole page, no duplicate statistics across sections, pills for interactive elements, 16px radius
    for containers and photo frames, 6px for chips.
