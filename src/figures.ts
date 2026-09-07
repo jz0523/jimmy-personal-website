@@ -31,11 +31,27 @@ type Spec = {
   lean?: number;
   /** Pops and rocks once when the pointer reaches it. */
   greet?: boolean;
+  /**
+   * Camera elevation range for the vertical follow, radians: the camera drops toward the first value
+   * when the cursor is above the figure (so it appears to look up) and rises toward the second when
+   * the cursor is below. Defaults to a narrow band around `elev`.
+   */
+  orbit?: [number, number];
 };
 
 // Plinth heights were measured in Blender from the largest up-facing face area near the floor.
 const SPECS: Record<string, Spec> = {
-  wave: { file: "models/wave.glb", base: 0.064, yaw: 0.12, fit: 0.86, elev: 0.16, look: 2.4, lean: 0.05, greet: true },
+  wave: {
+    file: "models/wave.glb",
+    base: 0.064,
+    yaw: 0.12,
+    fit: 0.86,
+    elev: 0.16,
+    look: 2.4,
+    lean: 0.05,
+    greet: true,
+    orbit: [0.03, 0.5],
+  },
   laptop: { file: "models/laptop.glb", base: 0.087, yaw: -0.4, fit: 0.86, elev: 0.22 },
   present: { file: "models/present.glb", base: 0.048, yaw: 0.3, fit: 0.88, elev: 0.14 },
   cat: { file: "models/cat.glb", base: 0.072, yaw: -0.18, fit: 0.86, elev: 0.17 },
@@ -375,10 +391,13 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
 
       const lookK = s.spec.look ?? 1;
       if (px >= 0) {
+        // -1..1 across the viewport, reaching the full value at the edges on each side of the figure.
         const cx = r.left + r.width / 2;
         const cy = r.top + r.height * 0.45;
-        s.lookTarget = THREE.MathUtils.clamp((px - cx) / (vw * 0.5), -1, 1) * LOOK_TURN * lookK;
-        s.tiltTarget = THREE.MathUtils.clamp((py - cy) / (vh * 0.5), -1, 1) * LOOK_TILT * (1 + (lookK - 1) * 0.5);
+        const nx = px < cx ? (px - cx) / Math.max(1, cx) : (px - cx) / Math.max(1, vw - cx);
+        const ny = py < cy ? (py - cy) / Math.max(1, cy) : (py - cy) / Math.max(1, vh - cy);
+        s.lookTarget = THREE.MathUtils.clamp(nx, -1, 1) * LOOK_TURN * lookK;
+        s.tiltTarget = THREE.MathUtils.clamp(ny, -1, 1);
       } else {
         s.lookTarget = 0;
         s.tiltTarget = 0;
@@ -399,7 +418,9 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
       const aspect = r.width / r.height;
       const h = 1 - s.spec.base;
       const d = Math.max(h / s.spec.fit / 2 / halfTan, s.footprint / s.spec.fit / 2 / (halfTan * aspect));
-      const el = s.spec.elev - s.tilt;
+      // Cursor above the figure: the camera drops, so the figure appears to look up at it. Below: it rises.
+      const [elMin, elMax] = s.spec.orbit ?? [s.spec.elev - LOOK_TILT, s.spec.elev + LOOK_TILT];
+      const el = s.spec.elev + (s.tilt < 0 ? s.tilt * (s.spec.elev - elMin) : s.tilt * (elMax - s.spec.elev));
       const ty = h * 0.5;
       s.camera.aspect = aspect;
       // Extend the frustum over the margin without moving or resizing the figure inside the slot.

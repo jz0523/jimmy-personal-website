@@ -50,7 +50,10 @@ first. Novelty is not a goal; restraint is.
    sway, an enter pop, and a click spin. No floating, no bobbing, no particles, no glow. The hero
    greeter is the exception the owner asked for: it turns up to about 40 degrees toward the cursor,
    tilts with its height, leans a few pixels toward it, and pops and rocks once when the pointer
-   reaches it. The other four keep the quiet 17-degree look.
+   reaches it. Vertically the camera orbits instead of the model (the plinth cut is horizontal, so
+   pitching the mesh would expose the plinth or float the base): the camera drops to about 2 degrees
+   when the cursor is above the greeter so it appears to look up, and rises to about 29 degrees when
+   the cursor is below. The other four keep the quiet 17-degree look with a 5-degree orbit.
 6. Site rules that already hold on `main`: zero em or en dashes in visible text, one eyebrow on the
    whole page, no duplicate statistics across sections, pills for interactive elements, 16px radius
    for containers and photo frames, 6px for chips.
