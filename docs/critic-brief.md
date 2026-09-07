@@ -77,8 +77,9 @@ first. Novelty is not a goal; restraint is.
     Round 3 measured single-row darkness cliffs of 39 to 72 at every slot's bottom edge; the gate is
     now `tools/profile.py` (largest single-row or single-column step at the slot and margin edges
     must be 20 or less).
-14. Framing uses 1.08x the bounding box, so the whiteboard's plate no longer clips at the slot's side
-    while the group turns.
+14. Framing uses the bounding box itself. (Round 3 briefly used 1.08x to keep the whiteboard's plate
+    clear of the slot's side; round 4 showed the 22% side margin of decision 13 already covers the
+    overhang, and the factor had shrunk the width-limited poses by 11%, undoing decision 12.)
 15. The key light sits at about 68 degrees so the cast shadow tucks under the figure; the contact blob
     (1.1x the footprint) carries the grounding. This aligns the figures' shadows with the photo
     frames' centered ambient shadows.
@@ -138,4 +139,7 @@ the existing design worse than it was without the figures.
 - Round 3 (fresh critic, acceptance): 7/10, NOT YET. New eyes caught what two rounds had stopped
   seeing: every shadow was scissored flat at the slot's bottom edge, and the whiteboard's plate was
   cut at the slot's left edge. Addressed in decisions 13 to 15; verified by `tools/profile.py`.
-- Round 4 (same fresh critic, verification): see below.
+- Round 4 (same fresh critic, verification): 8/10, SHIP IT, no blockers. Slot-bottom steps now 12
+  or less everywhere, the plate's overhang intact, the margin does not tint neighbours. One
+  nice-to-have taken: the 1.08x framing factor removed (decision 14 rewritten), verified by
+  measurement rather than another round.

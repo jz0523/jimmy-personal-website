@@ -209,8 +209,8 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
     const k = 1 / size.y;
     obj.scale.setScalar(k);
     obj.position.set(-((box.min.x + box.max.x) / 2) * k, -box.min.y * k - s.spec.base, -((box.min.z + box.max.z) / 2) * k);
-    // A little wider than the bounding box, so the figure keeps clear of the slot's sides while it turns.
-    s.footprint = Math.max(size.x, size.z) * k * 1.08;
+    // The render margin (PAD) already covers overhangs while the figure turns, so frame the box itself.
+    s.footprint = Math.max(size.x, size.z) * k;
     s.blob.scale.set(size.x * k * 1.1, size.z * k * 1.1, 1);
     obj.traverse((o) => {
       const m = o as THREE.Mesh;

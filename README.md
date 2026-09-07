@@ -26,6 +26,8 @@ npm run preview    # serves dist/ locally
 | `src/figures.ts` | The five 3D figurines: one shared, fixed WebGL canvas drawing into `.figure` slots, scroll-turn, pointer look, click spin, clipped plinths, VSM contact shadows. Loaded as its own chunk. |
 | `public/models/` | The optimized figurine GLBs (1K WebP textures, meshopt). The raw Tripo exports stay in `Model GLB/`, which is gitignored. |
 | `tools/shoot.py` | Playwright screenshots of every figurine slot at 1440x900 and 390x844 (needs the dev server on port 5199). |
+| `tools/profile.py` | Pixel gate for the figurines: no shadow may be cut at a slot's edge or at the render margin (reads the rects `shoot.py` writes). |
+| `tools/interact.py` | Drives the hero figurine with mouse moves, a click and a scroll, and clips six frames to review the motion. |
 | `docs/critic-brief.md` | The running brief and decision log for design-critic rounds on the figurines. |
 | `src/fonts.css`, `src/fonts/` | Self-hosted Bricolage Grotesque, Geist, Geist Mono (latin subsets). |
 | `public/images/` | Project screenshots pulled from the GitHub repos. |
