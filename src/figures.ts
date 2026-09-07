@@ -29,11 +29,11 @@ type Spec = {
 
 // Plinth heights were measured in Blender from the largest up-facing face area near the floor.
 const SPECS: Record<string, Spec> = {
-  wave: { file: "models/wave.glb", base: 0.064, yaw: 0.12, fit: 0.9, elev: 0.16 },
-  laptop: { file: "models/laptop.glb", base: 0.087, yaw: -0.4, fit: 0.9, elev: 0.22 },
-  present: { file: "models/present.glb", base: 0.048, yaw: 0.3, fit: 0.92, elev: 0.14 },
-  cat: { file: "models/cat.glb", base: 0.072, yaw: -0.18, fit: 0.9, elev: 0.17 },
-  farewell: { file: "models/farewell.glb", base: 0.051, yaw: 0.25, fit: 0.92, elev: 0.12 },
+  wave: { file: "models/wave.glb", base: 0.064, yaw: 0.12, fit: 0.86, elev: 0.16 },
+  laptop: { file: "models/laptop.glb", base: 0.087, yaw: -0.4, fit: 0.86, elev: 0.22 },
+  present: { file: "models/present.glb", base: 0.048, yaw: 0.3, fit: 0.88, elev: 0.14 },
+  cat: { file: "models/cat.glb", base: 0.072, yaw: -0.18, fit: 0.86, elev: 0.17 },
+  farewell: { file: "models/farewell.glb", base: 0.051, yaw: 0.25, fit: 0.88, elev: 0.12 },
 };
 
 /** A radial falloff for the contact blob under each figure. */
@@ -58,6 +58,9 @@ const SCROLL_TURN = -0.55; // radians of turn across the slot's trip through the
 const LOOK_TURN = 0.3; // how far the figure turns toward the pointer
 const LOOK_TILT = 0.09; // how far the camera drops or rises with the pointer
 const SWAY = 0.035; // idle sway amplitude
+// The render rect is the slot plus this margin (fractions of the slot's width or height), so shadows
+// and overhangs fade out on the paper instead of being cut by the slot's edge.
+const PAD = { x: 0.22, top: 0.12, bottom: 0.22 };
 
 type Slot = {
   key: string;
@@ -110,6 +113,7 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.VSMShadowMap;
   renderer.localClippingEnabled = true;
+  renderer.autoClear = false; // one clear per frame; the slots' margins may overlap and composite
   document.body.appendChild(canvas);
   canvas.addEventListener("webglcontextlost", (e) => e.preventDefault());
 
@@ -135,7 +139,7 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
     const root = new THREE.Group();
     scene.add(root);
     const light = new THREE.DirectionalLight(0xffffff, 2.4);
-    light.position.set(1.4, 3.2, 2.2);
+    light.position.set(0.9, 4.4, 1.7); // high, so the cast shadow tucks under the figure
     light.castShadow = true;
     light.shadow.mapSize.set(1024, 1024);
     const sc = light.shadow.camera;
@@ -205,8 +209,9 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
     const k = 1 / size.y;
     obj.scale.setScalar(k);
     obj.position.set(-((box.min.x + box.max.x) / 2) * k, -box.min.y * k - s.spec.base, -((box.min.z + box.max.z) / 2) * k);
-    s.footprint = Math.max(size.x, size.z) * k;
-    s.blob.scale.set(size.x * k * 1.25, size.z * k * 1.25, 1);
+    // A little wider than the bounding box, so the figure keeps clear of the slot's sides while it turns.
+    s.footprint = Math.max(size.x, size.z) * k * 1.08;
+    s.blob.scale.set(size.x * k * 1.1, size.z * k * 1.1, 1);
     obj.traverse((o) => {
       const m = o as THREE.Mesh;
       if (!m.isMesh) return;
@@ -367,7 +372,15 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
       const el = s.spec.elev - s.tilt;
       const ty = h * 0.5;
       s.camera.aspect = aspect;
-      s.camera.updateProjectionMatrix();
+      // Extend the frustum over the margin without moving or resizing the figure inside the slot.
+      s.camera.setViewOffset(
+        r.width,
+        r.height,
+        -r.width * PAD.x,
+        -r.height * PAD.top,
+        r.width * (1 + 2 * PAD.x),
+        r.height * (1 + PAD.top + PAD.bottom),
+      );
       s.camera.position.set(0, ty + d * Math.sin(el), d * Math.cos(el));
       s.camera.lookAt(0, ty, 0);
 
@@ -383,10 +396,14 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
     renderer.clear();
     renderer.setScissorTest(true);
     for (const { s, r } of visible) {
-      const x = r.left;
-      const y = vh - r.bottom;
-      renderer.setViewport(x, y, r.width, r.height);
-      renderer.setScissor(x, y, r.width, r.height);
+      const padX = r.width * PAD.x;
+      const x = r.left - padX;
+      const y = vh - r.bottom - r.height * PAD.bottom;
+      const w = r.width + 2 * padX;
+      const h = r.height * (1 + PAD.top + PAD.bottom);
+      renderer.setViewport(x, y, w, h);
+      renderer.setScissor(x, y, w, h);
+      renderer.clearDepth();
       renderer.render(s.scene, s.camera);
     }
   }

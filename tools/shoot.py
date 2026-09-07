@@ -4,6 +4,7 @@ Usage: python tools/shoot.py [out_dir] [desktop|mobile|both]
 Requires the dev server on http://localhost:5199 (npx vite --port 5199).
 """
 import asyncio
+import json
 import os
 import sys
 
@@ -13,6 +14,8 @@ URL = "http://localhost:5199/"
 OUT = sys.argv[1] if len(sys.argv) > 1 else "shots"
 WHICH = sys.argv[2] if len(sys.argv) > 2 else "both"
 VIEWPORTS = {"desktop": (1440, 900), "mobile": (390, 844)}
+RECT_JS = """(key) => { const r = document.querySelector('.figure[data-figure="' + key + '"]').getBoundingClientRect();
+                 return [r.left, r.top, r.width, r.height]; }"""
 
 
 async def run(browser, name, w, h):
@@ -51,6 +54,7 @@ async def run(browser, name, w, h):
     await page.evaluate("window.scrollTo(0, 0)")
     await page.wait_for_timeout(2400)
     await page.screenshot(path=f"{OUT}/{name}-hero.png")
+    rects = {"wave": await page.evaluate(RECT_JS, "wave")}
     for key in keys:
         if key == "wave":
             continue
@@ -63,6 +67,8 @@ async def run(browser, name, w, h):
         await page.evaluate(f"window.scrollTo(0, {yy})")
         await page.wait_for_timeout(1800)
         await page.screenshot(path=f"{OUT}/{name}-{key}.png")
+        rects[key] = await page.evaluate(RECT_JS, key)
+    json.dump(rects, open(f"{OUT}/{name}-rects.json", "w", encoding="utf-8"))
 
     # A walk down the page in viewport-sized steps, for context between the slots.
     total = await page.evaluate("document.documentElement.scrollHeight")

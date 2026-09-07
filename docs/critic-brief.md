@@ -66,6 +66,23 @@ first. Novelty is not a goal; restraint is.
     (recoloured in Blender, re-exported, re-optimized). The clip height for `present` stays 0.048
     because raising it would cut the sneaker soles.
 
+12. After round 2 the presenter's slot cap went from 270 to 300 px (its head was 85 px against
+    100 to 104 for the others because it shares the slot with the whiteboard), and the mobile sizes
+    were trimmed to hero 44%, work 140 px, contact 185 px so the mobile head spread falls from 1.5x
+    to about 1.3x.
+
+13. The render rect is the slot plus a margin (22% of the width each side, 12% above, 22% below)
+    and the camera frustum is extended over it with `setViewOffset`, so the figure keeps its size and
+    place inside the slot while its shadow fades out on the paper. `fit` dropped by 0.04 everywhere.
+    Round 3 measured single-row darkness cliffs of 39 to 72 at every slot's bottom edge; the gate is
+    now `tools/profile.py` (largest single-row or single-column step at the slot and margin edges
+    must be 20 or less).
+14. Framing uses 1.08x the bounding box, so the whiteboard's plate no longer clips at the slot's side
+    while the group turns.
+15. The key light sits at about 68 degrees so the cast shadow tucks under the figure; the contact blob
+    (1.1x the footprint) carries the grounding. This aligns the figures' shadows with the photo
+    frames' centered ambient shadows.
+
 Append new decisions here at the end of every round, with the measurement or reason.
 
 ## 4. Known tool limitations (do not report these as defects)
@@ -116,3 +133,9 @@ the existing design worse than it was without the figures.
 
 - Round 1 (fresh critic): 7/10, NOT SATISFIED. Blockers: the plinth-coloured plate under the
   whiteboard; figure scale spread of 1.9x. Both addressed in decisions 8 and 11.
+- Round 2 (same critic, verification): 8/10, SATISFIED, no blockers. Head widths at 1440 measured
+  104 / 103 / 85 / 100 / 104 px. Nice-to-haves applied as decision 12.
+- Round 3 (fresh critic, acceptance): 7/10, NOT YET. New eyes caught what two rounds had stopped
+  seeing: every shadow was scissored flat at the slot's bottom edge, and the whiteboard's plate was
+  cut at the slot's left edge. Addressed in decisions 13 to 15; verified by `tools/profile.py`.
+- Round 4 (same fresh critic, verification): see below.
