@@ -32,8 +32,12 @@ import {
   siBlender,
 } from "simple-icons";
 import { mountField } from "./field";
+import { inject } from "@vercel/analytics";
 
 gsap.registerPlugin(ScrollTrigger);
+
+/* ---------- Vercel Web Analytics: page views only, logs to console outside production ---------- */
+inject();
 
 const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const finePointer = window.matchMedia("(pointer: fine)").matches;
