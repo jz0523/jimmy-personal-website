@@ -41,7 +41,7 @@ async def run(browser, name, w, h):
         y += int(h * 0.7)
     for _ in range(80):
         st = await page.evaluate("window.__figures ? window.__figures.state() : null")
-        if st is None or st["loaded"] + st["failed"] >= st["total"]:
+        if st is not None and st["loaded"] + st["failed"] >= st["total"]:
             break
         await page.wait_for_timeout(500)
     st = await page.evaluate("window.__figures ? window.__figures.state() : null")

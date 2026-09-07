@@ -36,6 +36,23 @@ const SPECS: Record<string, Spec> = {
   farewell: { file: "models/farewell.glb", base: 0.051, yaw: 0.25, fit: 0.92, elev: 0.12 },
 };
 
+/** A radial falloff for the contact blob under each figure. */
+function makeBlobTexture(): THREE.Texture {
+  const c = document.createElement("canvas");
+  c.width = 128;
+  c.height = 128;
+  const g = c.getContext("2d")!;
+  const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  grad.addColorStop(0, "rgba(22, 23, 28, 0.6)");
+  grad.addColorStop(0.45, "rgba(22, 23, 28, 0.22)");
+  grad.addColorStop(1, "rgba(22, 23, 28, 0)");
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
 const FOV = 26;
 const SCROLL_TURN = -0.55; // radians of turn across the slot's trip through the viewport
 const LOOK_TURN = 0.3; // how far the figure turns toward the pointer
@@ -49,6 +66,7 @@ type Slot = {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   root: THREE.Group;
+  blob: THREE.Mesh;
   model: THREE.Object3D | null;
   footprint: number;
   requested: boolean;
@@ -90,7 +108,7 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.toneMappingExposure = 1;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.VSMShadowMap;
   renderer.localClippingEnabled = true;
   document.body.appendChild(canvas);
   canvas.addEventListener("webglcontextlost", (e) => e.preventDefault());
@@ -104,6 +122,8 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
 
   // Keeps y >= 0.0005 in world space: the plinth ends up below zero and disappears.
   const clip = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.0005);
+  const blobTex = makeBlobTexture();
+  const blobGeo = new THREE.PlaneGeometry(1, 1);
 
   const slots: Slot[] = els.map((el, i) => {
     const key = el.dataset.figure!;
@@ -125,16 +145,27 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
     sc.bottom = -0.9;
     sc.near = 0.5;
     sc.far = 8;
-    light.shadow.bias = -0.0006;
-    light.shadow.normalBias = 0.015;
+    light.shadow.bias = -0.0003;
+    light.shadow.normalBias = 0.03;
+    light.shadow.radius = 7;
+    light.shadow.blurSamples = 12;
     scene.add(light, light.target);
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(4, 4),
-      new THREE.ShadowMaterial({ color: 0x16171c, opacity: 0.18 }),
+      new THREE.ShadowMaterial({ color: 0x16171c, opacity: 0.13 }),
     );
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
+    // A soft contact blob under the footprint keeps the figure seated on the paper where the key light's shadow falls away.
+    const blob = new THREE.Mesh(
+      blobGeo,
+      new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false, opacity: 0.32, toneMapped: false }),
+    );
+    blob.rotation.x = -Math.PI / 2;
+    blob.position.y = 0.0008;
+    blob.renderOrder = -1;
+    root.add(blob);
     return {
       key,
       el,
@@ -142,6 +173,7 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
       scene,
       camera,
       root,
+      blob,
       model: null,
       footprint: 0.7,
       requested: false,
@@ -174,6 +206,7 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
     obj.scale.setScalar(k);
     obj.position.set(-((box.min.x + box.max.x) / 2) * k, -box.min.y * k - s.spec.base, -((box.min.z + box.max.z) / 2) * k);
     s.footprint = Math.max(size.x, size.z) * k;
+    s.blob.scale.set(size.x * k * 1.25, size.z * k * 1.25, 1);
     obj.traverse((o) => {
       const m = o as THREE.Mesh;
       if (!m.isMesh) return;

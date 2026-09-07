@@ -30,7 +30,7 @@ first. Novelty is not a goal; restraint is.
 ## 2. Reference material
 
 - `docs/reference/poses_sheet.jpg`: the five source renders the models were generated from.
-- `docs/reference/blender_front.png`: the five GLBs rendered in Blender, front view, on their plinths.
+- `docs/reference/blender_front.jpg`: the five GLBs rendered in Blender, front view, on their plinths.
 - `docs/reference/video_sheet.jpg`: frames from the Xiaohongshu video that inspired the request
   (a different, louder site: models over giant background words). We deliberately did not copy its
   look; only the idea of a 3D IP character living in a resume site.
@@ -52,6 +52,19 @@ first. Novelty is not a goal; restraint is.
    whole page, no duplicate statistics across sections, pills for interactive elements, 16px radius
    for containers and photo frames, 6px for chips.
 7. Figures are decorative: `aria-hidden`, no captions, no labels under them.
+
+8. Figure scale is unified on head width: about 100 to 105 px at 1440 wide. Round 1 measured
+   77 to 148 px across the five; the work slot went from 300 to 210 px wide, the contact slot from
+   360 to 285 px, the winner tile slot from 250 to 270 px. Mobile: work 150 px, contact 200 px, and
+   the winner tile gives the figure column 1.4 fr against the seal's 1 fr.
+9. The winner tile uses one arrangement at every width: the label, then the claim across the full
+   tile, then the seal bottom left and the presenter bottom right.
+10. Shadows are VSM (radius 7) at 0.13 opacity plus a soft radial contact blob under each footprint,
+    to match the ambient drop shadows on the photo frames. Round 1 read the hard PCF wedges as a
+    second lighting language.
+11. The whiteboard's base plate in present.glb was plinth-coloured; it is now the stand's grey
+    (recoloured in Blender, re-exported, re-optimized). The clip height for `present` stays 0.048
+    because raising it would cut the sneaker soles.
 
 Append new decisions here at the end of every round, with the measurement or reason.
 
@@ -98,3 +111,8 @@ WHAT ALREADY WORKS: things the next round must not break.
 Score 8 or above with no blocking issue is SATISFIED. Be harsh on clutter, overlap, inconsistent
 scale between figures, figures that read as pasted on rather than placed, and anything that makes
 the existing design worse than it was without the figures.
+
+## 7. Round history
+
+- Round 1 (fresh critic): 7/10, NOT SATISFIED. Blockers: the plinth-coloured plate under the
+  whiteboard; figure scale spread of 1.9x. Both addressed in decisions 8 and 11.

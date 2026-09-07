@@ -1547,21 +1547,36 @@ html.no-figures .figure,
   min-width: 0;
 }
 .figure-work {
-  width: clamp(200px, 22vw, 300px);
+  width: clamp(180px, 15vw, 210px);
   aspect-ratio: 1 / 1.1;
   margin-bottom: -12px;
 }
 
-/* Winner tile: the presenter stands under the seal, beside the claim */
+/* Winner tile: label, the claim across the full width, then the seal and the presenter side by side */
+.tile-win {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.tile-win > .mono {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
 .tile-win .tile-main {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: start;
+}
+.tile-win .seal {
   grid-column: 1;
+  grid-row: 3;
+  align-self: end;
 }
 .figure-win {
   grid-column: 2;
-  grid-row: 2;
+  grid-row: 3;
   align-self: end;
   justify-self: end;
-  width: clamp(190px, 17vw, 250px);
+  width: clamp(220px, 19vw, 270px);
   aspect-ratio: 1 / 1.05;
   margin: 0 -8px -18px 0;
 }
@@ -1587,7 +1602,7 @@ html.no-figures .figure,
 }
 .figure-contact {
   justify-self: end;
-  width: min(100%, 360px);
+  width: min(100%, 285px);
   aspect-ratio: 1 / 1.25;
   margin-bottom: -8px;
 }
@@ -1597,7 +1612,7 @@ html.no-figures .figure,
 
 @media (max-width: 900px) {
   .figure-hero {
-    left: -6%;
+    left: -3%;
     bottom: -5%;
     width: 48%;
   }
@@ -1606,12 +1621,13 @@ html.no-figures .figure,
     gap: 8px;
   }
   .figure-work {
-    width: 180px;
+    width: 150px;
     justify-self: end;
     margin-bottom: 0;
   }
   .tile-win {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1.4fr;
+    grid-template-rows: auto auto auto;
   }
   .tile-win > .mono,
   .tile-win .tile-main {
@@ -1634,7 +1650,7 @@ html.no-figures .figure,
   }
   .figure-contact {
     justify-self: start;
-    width: 240px;
+    width: 200px;
     margin-top: 12px;
     margin-bottom: 0;
   }
