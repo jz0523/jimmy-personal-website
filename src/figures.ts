@@ -25,8 +25,10 @@ type Spec = {
   fit: number;
   /** Camera elevation above the figure's mid-height, radians. */
   elev: number;
-  /** Multiplier on the pointer turn and tilt. The greeter tracks the cursor far more than the others. */
+  /** Multiplier on the pointer turn toward screen left. The greeter tracks the cursor far more than the others. */
   look?: number;
+  /** Multiplier on the turn toward screen right, when the pose reads worse turned that way. Defaults to `look`. */
+  lookRight?: number;
   /** How far the figure slides toward the cursor at full turn, in model units. */
   lean?: number;
   /** Pops and rocks once when the pointer reaches it. */
@@ -47,10 +49,11 @@ const SPECS: Record<string, Spec> = {
     yaw: 0.12,
     fit: 0.86,
     elev: 0.16,
-    look: 2.4,
-    lean: 0.05,
+    look: 3.3, // about 57 degrees toward the copy and the buttons on the left
+    lookRight: 2.5, // about 43 degrees toward the nav on the right; beyond that the waving hand covers the face
+    lean: 0.08,
     greet: true,
-    orbit: [0.03, 0.5],
+    orbit: [-0.04, 0.65], // from just below level to 37 degrees above; higher hides the face under the hair
   },
   laptop: { file: "models/laptop.glb", base: 0.087, yaw: -0.4, fit: 0.86, elev: 0.22 },
   present: { file: "models/present.glb", base: 0.048, yaw: 0.3, fit: 0.88, elev: 0.14 },
@@ -394,15 +397,19 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
         // -1..1 across the viewport, reaching the full value at the edges on each side of the figure.
         const cx = r.left + r.width / 2;
         const cy = r.top + r.height * 0.45;
-        const nx = px < cx ? (px - cx) / Math.max(1, cx) : (px - cx) / Math.max(1, vw - cx);
-        const ny = py < cy ? (py - cy) / Math.max(1, cy) : (py - cy) / Math.max(1, vh - cy);
-        s.lookTarget = THREE.MathUtils.clamp(nx, -1, 1) * LOOK_TURN * lookK;
+        // The greeter reaches its full turn three quarters of the way to the edge, so ordinary
+        // pointer travel around the copy and the buttons already moves it visibly.
+        const gain = s.spec.greet ? 1 / 0.75 : 1;
+        const nx = (px < cx ? (px - cx) / Math.max(1, cx) : (px - cx) / Math.max(1, vw - cx)) * gain;
+        const ny = (py < cy ? (py - cy) / Math.max(1, cy) : (py - cy) / Math.max(1, vh - cy)) * gain;
+        const turnK = nx > 0 ? (s.spec.lookRight ?? lookK) : lookK;
+        s.lookTarget = THREE.MathUtils.clamp(nx, -1, 1) * LOOK_TURN * turnK;
         s.tiltTarget = THREE.MathUtils.clamp(ny, -1, 1);
       } else {
         s.lookTarget = 0;
         s.tiltTarget = 0;
       }
-      const k = 1 - Math.exp(-dt * (s.spec.greet ? 7 : 5));
+      const k = 1 - Math.exp(-dt * (s.spec.greet ? 9 : 5));
       s.look += (s.lookTarget - s.look) * k;
       s.tilt += (s.tiltTarget - s.tilt) * k;
 
