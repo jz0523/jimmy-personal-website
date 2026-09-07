@@ -21,7 +21,7 @@ npm run preview    # serves dist/ locally
 | --- | --- |
 | `index.html` | All content. Edit copy here. |
 | `src/styles.css` | Design tokens and layout. One light theme, one accent (`--accent`). |
-| `src/main.ts` | Lenis, GSAP timelines, hero photo cascade, sticky-stack, horizontal gallery, marquee, mobile menu. |
+| `src/main.ts` | Lenis, GSAP timelines, hero photo cascade, sticky-stack, horizontal gallery, award seals, toolbox wall, mobile menu. |
 | `src/field.ts` | The WebGL point field behind the contact section (removed silently without WebGL). |
 | `src/fonts.css`, `src/fonts/` | Self-hosted Bricolage Grotesque, Geist, Geist Mono (latin subsets). |
 | `public/images/` | Project screenshots pulled from the GitHub repos. |
@@ -33,7 +33,8 @@ npm run preview    # serves dist/ locally
 - **A new project**: copy one `<article class="card">` block in `index.html`, drop a real screenshot in `public/images/`, and keep the three-fact list. The sticky stack pins every card except the last automatically.
 - **A new role**: copy one `<article class="exp">` block. Dates use a plain hyphen ("Aug 2026 - Present").
 - **Hero headlines**: the rotating claims live in the `HEADLINES` array in `src/main.ts` as [line one, line two, accented ending]. Keep line one under 18 characters and line two under 19 so nothing wraps at desktop.
-- **Toolbox logos**: edit the `LOGOS` array in `src/main.ts`; icons come from the `simple-icons` package, so check the export exists (`siSomething`).
+- **Toolbox**: each tool is one `<li class="tool">` in `index.html`. Give it a `data-icon` key that exists in the `ICONS` map in `src/main.ts` (icons come from the `simple-icons` package) or leave the attribute off for a text-only tile. The mono `tool-where` span names where it shipped.
+- **Awards and leadership**: tiles live in the `.bento` grid in `index.html`. The seal rings are SVG text on a circle; keep the ring copy near 65 characters so the spacing stays even. Tenure bars sit on one time axis: `--s` and `--e` are start and end as fractions of Jan 2024 to now, and the axis labels in `.axis` use the same scale.
 - **A new photo**: export it to `public/images/me/` at about 1200 to 1500px on the long edge (strip metadata), then copy one `<figure class="photo">` block. Gallery images need `width`/`height` attributes so the horizontal pan measures correctly before they load.
 
 ## Design rules baked in

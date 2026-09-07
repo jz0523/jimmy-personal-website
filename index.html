@@ -167,7 +167,7 @@
                   <li>Matches on need and value: what you are looking for against what others can offer</li>
                   <li>Uses your email for context (a conference, a course, a hackathon) and finds people doing the same</li>
                 </ul>
-                <div class="chips"><span>Python</span><span>FastAPI</span><span>LangGraph</span><span>Azure OpenAI</span><span>Supabase</span></div>
+                <div class="chips"><span>Python</span><span>FastAPI</span><span>LangGraph</span><span>Redis</span><span>Supabase</span><span>AWS</span></div>
                 <a class="link-arrow" href="https://github.com/jz0523/franklink_imessage_agent" target="_blank" rel="noopener">Source on GitHub</a>
               </div>
               <div class="card-media card-media--brand">
@@ -193,7 +193,7 @@
         <div class="container exp-grid">
           <div class="exp-side">
             <h2 class="h2 reveal">Experience</h2>
-            <p class="lede reveal">Five roles in two years, from independent research to founding engineer.</p>
+            <p class="lede reveal">Four roles in twelve months: co-founder, founding engineer, product manager, product engineer.</p>
             <figure class="photo side-photo reveal">
               <div class="photo-frame"><img src="images/me/hackathon-judge.jpg" alt="Jimmy at a lectern in a lecture hall, running a hackathon workshop" width="1400" height="1050" loading="lazy" /></div>
               <figcaption>Running a workshop and judging at a hackathon</figcaption>
@@ -243,32 +243,21 @@
                 <ul class="facts">
                   <li>Designed and ran A/B tests routing tailored prompts by user intent, lifting click-through on generated sites by 23%</li>
                   <li>Analyzed a 20,000-user experiment showing style guidance made users 15% more likely to publish, then shipped the feature</li>
+                  <li>Built the event-tracking robot for the Atoms experiments, so new tests announce themselves and data queries take half the time</li>
                 </ul>
               </div>
             </article>
 
             <article class="exp reveal">
-              <div class="exp-meta"><span class="mono">Sep 2025 - Apr 2026</span></div>
+              <div class="exp-meta"><span class="mono">Sep 2025 - Mar 2026</span></div>
               <div class="exp-main">
                 <h3 class="h4">Franklink</h3>
                 <p class="role">Co-founder and Technical Lead</p>
                 <p class="exp-context">The first AI networking agent native to iMessage.</p>
                 <ul class="facts">
-                  <li>Set the technical direction and led the weekly roadmap reviews that broke work into per-engineer tasks and marketing targets</li>
-                  <li>Built the agent on LangGraph with a ReAct loop across back end, data enrichment, and web, deployed on AWS</li>
-                </ul>
-              </div>
-            </article>
-
-            <article class="exp reveal">
-              <div class="exp-meta"><span class="mono">Jul 2024 - Aug 2025</span></div>
-              <div class="exp-main">
-                <h3 class="h4">Migracoast</h3>
-                <p class="role">Independent Machine Learning and GIS Research</p>
-                <p class="exp-context">Coastal climate-risk modeling across nine U.S. states.</p>
-                <ul class="facts">
-                  <li>Built the multivariate model on sea-level, flood-frequency, housing, and local-vulnerability datasets</li>
-                  <li>Published the model and its data pipeline for other researchers and coastal planners to reuse</li>
+                  <li>Built the agent on LangGraph with a ReAct loop, Redis for cache and Supabase for storage, deployed on AWS</li>
+                  <li>Raised the angel round from a Y Combinator China founding team member and set the technical direction for the team</li>
+                  <li>Led the weekly discussions that broke the roadmap into per-engineer tasks and marketing targets, and reviewed progress with the team</li>
                 </ul>
               </div>
             </article>
@@ -355,63 +344,166 @@
         </div>
       </section>
 
-      <!-- RECOGNITION -->
-      <section class="section recognition">
+      <!-- RESEARCH, AWARDS, LEADERSHIP -->
+      <section id="recognition" class="section recognition">
         <div class="container">
           <h2 class="h2 reveal">Research, awards, and leadership</h2>
-          <div class="rec-grid">
-            <div class="rec-col reveal">
-              <h3 class="rec-label">Research</h3>
-              <ul>
-                <li>Migracoast: coastal climate-risk modeling across nine U.S. states, open-sourced (2024 to 2025)</li>
-                <li>Presented “The Impacts of Income Inequality on China’s Carbon Emissions” at the International Conference on Economics</li>
-                <li>Modeled Massachusetts coastal vertebrate biodiversity under warming and acidification scenarios with CMIP5 projections</li>
+          <p class="lede reveal">Papers, prizes, and the organizations <span class="nowrap">I belong to.</span></p>
+          <div class="bento">
+            <article class="tile tile-win reveal">
+              <span class="mono">Start-Up in a Weekend Hackathon, 2025</span>
+              <div class="seal seal-lg" aria-hidden="true">
+                <svg class="seal-ring" viewBox="0 0 200 200">
+                  <g class="seal-spin">
+                    <path id="seal-path-a" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0" fill="none" />
+                    <text><textPath href="#seal-path-a" textLength="484" lengthAdjust="spacing">WINNER · HYBRID INTELLIGENCE TRACK · START-UP IN A WEEKEND · 2025 · </textPath></text>
+                  </g>
+                </svg>
+                <span class="seal-core" data-count="48" data-suffix="h">48h</span>
+              </div>
+              <div class="tile-main">
+                <h3 class="h3">Won the Hybrid Intelligence Track</h3>
+                <p>A career-counseling agent, taken from idea to a shipped product in 48 hours.</p>
+              </div>
+            </article>
+
+            <article class="tile tile-final reveal">
+              <div class="tile-copy">
+                <span class="mono">2023</span>
+                <h3 class="h4">Finalist, Model Entrepreneur Competition</h3>
+                <p>Pitched a marine waste collection robot to the judging panel.</p>
+              </div>
+            </article>
+
+            <article class="tile tile-mit reveal">
+              <div class="tile-copy">
+                <span class="mono">Summer 2024</span>
+                <h3 class="h4">MIT Beaver Works Summer Institute</h3>
+                <p>Remote sensing, GIS, Python, and machine learning: the same tools my coastal research runs on.</p>
+              </div>
+            </article>
+
+            <article class="tile tile-index reveal">
+              <h3 class="tile-title">Research and papers</h3>
+              <ol class="index">
+                <li>
+                  <span class="idx">01</span>
+                  <div>
+                    <h4 class="h4">Migracoast</h4>
+                    <p>The research behind the tool in Selected work: a multivariate risk score from sea-level, flood-frequency, housing, and vulnerability data, with the pipeline published for coastal planners.</p>
+                    <span class="mono">Independent research · <span class="nowrap">2024 to 2025</span></span>
+                  </div>
+                </li>
+                <li>
+                  <span class="idx">02</span>
+                  <div>
+                    <h4 class="h4">The Impacts of Income Inequality on China’s Carbon Emissions</h4>
+                    <p>Presented at the International Conference on Economics.</p>
+                    <span class="mono">Conference paper</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="idx">03</span>
+                  <div>
+                    <h4 class="h4">Coastal biodiversity under a warming ocean</h4>
+                    <p>Modeled Massachusetts coastal vertebrate biodiversity under warming and acidification scenarios using CMIP5 climate projections.</p>
+                    <span class="mono">Climate model</span>
+                  </div>
+                </li>
+              </ol>
+            </article>
+
+            <article class="tile tile-roster reveal">
+              <h3 class="tile-title">Leadership and activities</h3>
+              <div class="axis" aria-hidden="true"><i style="--x: 0.000">2024</i><i style="--x: 0.375">2025</i><i style="--x: 0.750">2026</i></div>
+              <ul class="roster">
+                <li>
+                  <div class="roster-head"><span class="roster-org">Wharton China Association</span><span class="mono">Since Aug 2025</span></div>
+                  <p>Sponsorship Chair. Company outreach for the annual Penn Wharton China Summit.</p>
+                  <span class="tenure" aria-hidden="true"><span class="tenure-fill" style="--s: 0.594; --e: 1"></span></span>
+                </li>
+                <li>
+                  <div class="roster-head"><span class="roster-org">Penn Venture Lab</span><span class="mono">Since Aug 2025</span></div>
+                  <p>Member. Building alongside student founders in Penn’s early-stage incubator.</p>
+                  <span class="tenure" aria-hidden="true"><span class="tenure-fill" style="--s: 0.594; --e: 1"></span></span>
+                </li>
+                <li>
+                  <div class="roster-head"><span class="roster-org">Wharton Hedge Fund Club</span><span class="mono">Since Oct 2025</span></div>
+                  <p>Global Macro group member. Macro trade ideas for the coverage group.</p>
+                  <span class="tenure" aria-hidden="true"><span class="tenure-fill" style="--s: 0.656; --e: 1"></span></span>
+                </li>
+                <li class="is-past">
+                  <div class="roster-head"><span class="roster-org">TEDxYouth at Tabor Academy</span><span class="mono">Apr to Dec 2024</span></div>
+                  <p>Founder and organizer. Secured the license, built the committee, and drew 100 attendees.</p>
+                  <span class="tenure" aria-hidden="true"><span class="tenure-fill" style="--s: 0.094; --e: 0.375"></span></span>
+                </li>
               </ul>
-            </div>
-            <div class="rec-col reveal">
-              <h3 class="rec-label">Awards</h3>
-              <ul>
-                <li>Winner, Hybrid Intelligence Track, Start-Up in a Weekend Hackathon (2025): a career-counseling agent shipped in 48 hours</li>
-                <li>Finalist, Model Entrepreneur Competition (2023): pitched a marine waste collection robot</li>
-              </ul>
-            </div>
-            <div class="rec-col reveal">
-              <h3 class="rec-label">Leadership</h3>
-              <ul>
-                <li>Sponsorship Chair, Wharton China Association: sponsor outreach for the Penn Wharton China Summit</li>
-                <li>Founder and organizer, TEDxYouth at Tabor Academy: 100 attendees</li>
-                <li>Member, Wharton Hedge Fund Club (Global Macro) and Penn Venture Lab</li>
-              </ul>
-            </div>
+            </article>
           </div>
         </div>
       </section>
 
       <!-- TOOLBOX -->
-      <section class="section toolbox">
+      <section id="toolbox" class="section toolbox">
         <div class="container">
           <h2 class="h2 reveal">Toolbox</h2>
-        </div>
-        <div class="marquee reveal" aria-hidden="true">
-          <div class="marquee-track" id="marquee-track"></div>
-        </div>
-        <div class="container">
-          <div class="tool-groups">
-            <div class="tool-group reveal">
+          <p class="lede reveal">What I reach for, and where it has shipped.</p>
+          <div class="tool-wall" id="tool-wall">
+            <div class="tool-row">
               <h3>Languages</h3>
-              <p>Python, TypeScript, Java, OCaml, C++, SQL, GLSL, LaTeX</p>
+              <ul class="tools">
+                <li class="tool is-featured" data-icon="python"><span class="tool-name">Python</span><span class="tool-where">Migracoast, Franklink, Welta</span></li>
+                <li class="tool is-featured" data-icon="typescript"><span class="tool-name">TypeScript</span><span class="tool-where">World of Painting, Odyssey, this site</span></li>
+                <li class="tool" data-icon="java"><span class="tool-name">Java</span></li>
+                <li class="tool" data-icon="ocaml"><span class="tool-name">OCaml</span></li>
+                <li class="tool" data-icon="cplusplus"><span class="tool-name">C++</span></li>
+                <li class="tool"><span class="tool-name">SQL</span></li>
+                <li class="tool" data-icon="html5"><span class="tool-name">HTML/CSS</span></li>
+                <li class="tool" data-icon="latex"><span class="tool-name">LaTeX</span></li>
+              </ul>
             </div>
-            <div class="tool-group reveal">
+            <div class="tool-row">
               <h3>AI and ML</h3>
-              <p>LLM agent architecture, LangGraph, ReAct, reinforcement learning, prompt evaluation, A/B testing, deep learning</p>
+              <ul class="tools">
+                <li class="tool is-featured" data-icon="langgraph"><span class="tool-name">LangGraph</span><span class="tool-where">Franklink agent</span></li>
+                <li class="tool" data-icon="pytorch"><span class="tool-name">PyTorch</span></li>
+                <li class="tool" data-icon="tensorflow"><span class="tool-name">TensorFlow</span></li>
+                <li class="tool" data-icon="scikitlearn"><span class="tool-name">scikit-learn</span></li>
+                <li class="tool" data-icon="huggingface"><span class="tool-name">Hugging Face Transformers</span></li>
+                <li class="tool" data-icon="langchain"><span class="tool-name">LangChain</span></li>
+                <li class="tool is-method"><span class="tool-name">Multi-agent orchestration</span><span class="tool-where">Welta</span></li>
+                <li class="tool is-method"><span class="tool-name">Reinforcement learning</span><span class="tool-where">Welta</span></li>
+                <li class="tool is-method"><span class="tool-name">RAG</span></li>
+                <li class="tool is-method"><span class="tool-name">LoRA/PEFT</span></li>
+              </ul>
             </div>
-            <div class="tool-group reveal">
+            <div class="tool-row">
+              <h3>Systems and data</h3>
+              <ul class="tools">
+                <li class="tool" data-icon="redis"><span class="tool-name">Redis</span><span class="tool-where">Franklink cache</span></li>
+                <li class="tool" data-icon="supabase"><span class="tool-name">Supabase</span><span class="tool-where">Franklink storage</span></li>
+                <li class="tool"><span class="tool-name">AWS</span><span class="tool-where">Franklink deploys</span></li>
+                <li class="tool" data-icon="qgis"><span class="tool-name">QGIS</span><span class="tool-where">Migracoast</span></li>
+                <li class="tool" data-icon="postgresql"><span class="tool-name">PostgreSQL</span></li>
+                <li class="tool" data-icon="docker"><span class="tool-name">Docker</span></li>
+                <li class="tool" data-icon="linux"><span class="tool-name">Linux</span></li>
+                <li class="tool" data-icon="git"><span class="tool-name">Git</span></li>
+                <li class="tool" data-icon="pandas"><span class="tool-name">pandas</span></li>
+                <li class="tool" data-icon="numpy"><span class="tool-name">NumPy</span></li>
+                <li class="tool is-method"><span class="tool-name">OAuth</span></li>
+                <li class="tool is-method"><span class="tool-name">A/B testing</span><span class="tool-where">Atoms</span></li>
+              </ul>
+            </div>
+            <div class="tool-row">
               <h3>Web and 3D</h3>
-              <p>Full-stack web development, React, Next.js, FastAPI, Three.js, WebGL2, OAuth</p>
-            </div>
-            <div class="tool-group reveal">
-              <h3>Data and tools</h3>
-              <p>Supabase, PostgreSQL, Docker, Git, GIS, Jupyter, Blender, SPSS</p>
+              <ul class="tools">
+                <li class="tool is-featured" data-icon="threejs"><span class="tool-name">Three.js</span><span class="tool-where">World of Painting, Odyssey, Chrona</span></li>
+                <li class="tool" data-icon="react"><span class="tool-name">React</span></li>
+                <li class="tool" data-icon="fastapi"><span class="tool-name">FastAPI</span><span class="tool-where">Franklink API</span></li>
+                <li class="tool" data-icon="webgl"><span class="tool-name">WebGL</span><span class="tool-where">Neon Street</span></li>
+                <li class="tool" data-icon="opengl"><span class="tool-name">GLSL</span><span class="tool-where">Neon Street, World of Painting</span></li>
+                <li class="tool" data-icon="blender"><span class="tool-name">Blender</span><span class="tool-where">Neon Street props</span></li>
+              </ul>
             </div>
           </div>
         </div>

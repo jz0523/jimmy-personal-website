@@ -4,24 +4,32 @@ import Lenis from "lenis";
 import {
   siPython,
   siTypescript,
+  siOpenjdk,
   siOcaml,
   siCplusplus,
-  siPostgresql,
-  siThreedotjs,
-  siLangchain,
+  siHtml5,
+  siOpengl,
+  siLatex,
   siLanggraph,
-  siFastapi,
+  siPytorch,
+  siTensorflow,
+  siScikitlearn,
+  siHuggingface,
+  siLangchain,
+  siRedis,
   siSupabase,
-  siAnthropic,
-  siClaude,
-  siReact,
-  siNextdotjs,
+  siPostgresql,
   siDocker,
+  siLinux,
   siGit,
-  siGithub,
-  siJupyter,
+  siPandas,
+  siNumpy,
+  siQgis,
+  siThreedotjs,
+  siReact,
+  siFastapi,
+  siWebgl,
   siBlender,
-  siVite,
 } from "simple-icons";
 import { mountField } from "./field";
 
@@ -277,48 +285,148 @@ mm.add(
   },
 );
 
-/* ---------- Toolbox marquee: real brand marks, inlined at build time ---------- */
-const LOGOS = [
-  siPython,
-  siTypescript,
-  siOcaml,
-  siCplusplus,
-  siPostgresql,
-  siThreedotjs,
-  siLangchain,
-  siLanggraph,
-  siFastapi,
-  siSupabase,
-  siAnthropic,
-  siClaude,
-  siReact,
-  siNextdotjs,
-  siDocker,
-  siGit,
-  siGithub,
-  siJupyter,
-  siBlender,
-  siVite,
-];
-const track = document.getElementById("marquee-track");
-if (track) {
-  const svgNS = "http://www.w3.org/2000/svg";
-  const frag = document.createDocumentFragment();
-  for (let rep = 0; rep < 2; rep++) {
-    for (const icon of LOGOS) {
-      const svg = document.createElementNS(svgNS, "svg");
-      svg.setAttribute("viewBox", "0 0 24 24");
-      svg.setAttribute("role", "img");
-      svg.setAttribute("aria-label", icon.title);
-      const path = document.createElementNS(svgNS, "path");
-      path.setAttribute("d", icon.path);
-      svg.appendChild(path);
-      frag.appendChild(svg);
-    }
+/* ---------- Research and awards: seals keep turning, the winner's clock counts up, tenure bars fill ---------- */
+const recognition = document.querySelector<HTMLElement>(".recognition");
+if (recognition && !prefersReduced) {
+  gsap.utils.toArray<SVGGElement>(".seal-spin").forEach((g, i) => {
+    gsap.to(g, { rotation: i % 2 ? -360 : 360, transformOrigin: "50% 50%", duration: 70, ease: "none", repeat: -1 });
+  });
+  // On top of the slow spin, the scroll itself turns the rings.
+  gsap.to(".seal-ring", {
+    rotation: 110,
+    ease: "none",
+    scrollTrigger: { trigger: recognition, start: "top bottom", end: "bottom top", scrub: 0.8 },
+  });
+  const core = recognition.querySelector<HTMLElement>("[data-count]");
+  if (core) {
+    const target = Number(core.dataset.count || 0);
+    const suffix = core.dataset.suffix || "";
+    const state = { v: 0 };
+    core.textContent = `0${suffix}`;
+    ScrollTrigger.create({
+      trigger: core,
+      start: "top 88%",
+      once: true,
+      onEnter: () =>
+        gsap.to(state, {
+          v: target,
+          duration: 1.6,
+          ease: "power2.out",
+          onUpdate: () => (core.textContent = `${Math.round(state.v)}${suffix}`),
+        }),
+    });
   }
-  track.appendChild(frag);
+  const fills = gsap.utils.toArray<HTMLElement>(".tenure-fill");
+  if (fills.length) {
+    gsap.set(fills, { scaleX: 0 });
+    ScrollTrigger.create({
+      trigger: ".tile-roster",
+      start: "top 80%",
+      once: true,
+      onEnter: () => gsap.to(fills, { scaleX: 1, duration: 1.2, ease: "power3.out", stagger: 0.1 }),
+    });
+  }
 }
 
+/* ---------- Toolbox: brand marks inlined at build time, tiles pop in, then lean toward the pointer ---------- */
+const ICONS: Record<string, { title: string; path: string }> = {
+  python: siPython,
+  typescript: siTypescript,
+  java: siOpenjdk,
+  ocaml: siOcaml,
+  cplusplus: siCplusplus,
+  html5: siHtml5,
+  opengl: siOpengl,
+  latex: siLatex,
+  langgraph: siLanggraph,
+  pytorch: siPytorch,
+  tensorflow: siTensorflow,
+  scikitlearn: siScikitlearn,
+  huggingface: siHuggingface,
+  langchain: siLangchain,
+  redis: siRedis,
+  supabase: siSupabase,
+  postgresql: siPostgresql,
+  docker: siDocker,
+  linux: siLinux,
+  git: siGit,
+  pandas: siPandas,
+  numpy: siNumpy,
+  qgis: siQgis,
+  threejs: siThreedotjs,
+  react: siReact,
+  fastapi: siFastapi,
+  webgl: siWebgl,
+  blender: siBlender,
+};
+const tools = gsap.utils.toArray<HTMLElement>(".tool");
+const svgNS = "http://www.w3.org/2000/svg";
+tools.forEach((el) => {
+  const icon = ICONS[el.dataset.icon || ""];
+  if (!icon) return;
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  const path = document.createElementNS(svgNS, "path");
+  path.setAttribute("d", icon.path);
+  svg.appendChild(path);
+  el.prepend(svg);
+});
+const wallItems = gsap.utils.toArray<HTMLElement>(".tool-row h3, .tool");
+if (prefersReduced) {
+  tools.forEach((el) => el.classList.add("is-in"));
+} else if (wallItems.length) {
+  gsap.set(wallItems, { y: 14, opacity: 0, scale: 0.92 });
+  ScrollTrigger.batch(wallItems, {
+    start: "top 92%",
+    once: true,
+    onEnter: (els) =>
+      gsap.to(els, {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.7,
+        ease: "back.out(1.6)",
+        stagger: 0.03,
+        overwrite: true,
+        clearProps: "transform",
+        onComplete: () => els.forEach((el) => el.classList.add("is-in")),
+      }),
+  });
+}
+const wall = document.getElementById("tool-wall");
+if (wall && finePointer && !prefersReduced && tools.length) {
+  let px = 0;
+  let py = 0;
+  let inside = false;
+  let queued = false;
+  const RADIUS = 220;
+  const apply = () => {
+    queued = false;
+    for (const el of tools) {
+      const r = el.getBoundingClientRect();
+      const dx = px - (r.left + r.width / 2);
+      const dy = py - (r.top + r.height / 2);
+      const k = inside ? Math.max(0, 1 - Math.hypot(dx, dy) / RADIUS) : 0;
+      el.style.setProperty("--lift", (k * k).toFixed(3));
+    }
+  };
+  const queue = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(apply);
+  };
+  wall.addEventListener("mousemove", (e) => {
+    px = e.clientX;
+    py = e.clientY;
+    inside = true;
+    queue();
+  });
+  wall.addEventListener("mouseleave", () => {
+    inside = false;
+    queue();
+  });
+}
 /* ---------- Contact: the point field, in ink and cobalt on paper ---------- */
 const canvas = document.getElementById("field") as HTMLCanvasElement | null;
 if (canvas) {
