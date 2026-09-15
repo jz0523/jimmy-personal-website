@@ -6,7 +6,8 @@ Date: 2026-09-14. Branch: `feat/opening-animation`.
 
 A short welcome that plays once, on the first visit of a session, before the hero entrance, and
 hands off into it without a visible seam. The page is paper; the opening is set on the same paper.
-There is no curtain, no wipe, no colour panel, no counter. The visitor reads a greeting and the
+There is no curtain, no wipe, no full-screen panel, no counter; the one block of colour is a
+lockup-sized cobalt panel (see "The columns"). The visitor reads a greeting and the
 owner's name in the centre of the sheet, the name then travels to its seat in the top-left corner
 (where it is the site's wordmark for the rest of the visit) and, while it is still in flight, the
 hero headline rises into the space it left. The opening ends where the existing hero entrance
@@ -69,16 +70,16 @@ Times are seconds after the display font is ready (the existing hero entrance al
 | --- | --- | --- |
 | 0.00 | The greeting "Hello, I'm" fades up. | y 12 to 0, opacity 0 to 1, 0.45 s, `power3.out`. Geist Mono at 0.95 rem, sentence case, `--text-2`, `clamp(14px, 1.6vw, 22px)` above the name. Not an eyebrow: the page keeps its one-eyebrow rule. |
 | 0.05 | The name "Jimmy Zhong" rises out of a line mask. | `yPercent` 112 to 0, 0.8 s, `power4.out`, the same mask mechanics as the hero headline. Bricolage Grotesque, opsz 96, weight 500, the `h1` size. |
-| 0.32 | Seven cobalt columns rise behind the lockup in alternating directions, odd ones down from the top and even ones up from the bottom, 40 ms apart from left to right. Where a column covers the lockup the letters are white. | Each column `clip-path: inset()` from shut to open, 0.36 s, `power2.inOut`. See "The columns" below. |
-| 0.92 | The columns have closed into one cobalt panel with white letters. The one still moment of the opening. | 0.22 s. |
-| 1.14 | The columns withdraw the way they came, in the same left-to-right order, and are gone as the flight begins. | Each column back to shut, 0.3 s, `power2.inOut`, 35 ms apart. |
-| 1.47 | The greeting settles down and out, gone before the rising name reaches its line. | y 0 to 8, opacity 1 to 0, 0.3 s, `power2.in`. The flyer's box first touches the greeting's line 0.17 s into the flight on phones and 0.2 s on desktop; the greeting is at zero 0.12 s in. |
-| 1.65 | The name travels to the nav wordmark's slot. | A hand-computed fit (see below), 0.8 s, `power2.inOut` (motion visible in the first frames). |
-| 2.10 | The hero entrance starts while the name is still in flight, in view. By now the shrinking flyer is above the eyebrow's line, so the two never overlap. | The existing hero timeline `play()`s here, so the eyebrow and headline rise into the centre as the name leaves it. |
-| 2.45 | The name lands. On that frame it is swapped for the real wordmark, the nav links and menu button fade in, the cover is removed, `inert` and scrolling are released. | `autoAlpha` swap; nav children y 8 to 0, opacity 0 to 1, 0.5 s, stagger 0.05; `lenis.start()`; `html.intro-active` removed. |
-| 2.45 onward | The hero entrance continues as it does today: sub, buttons, prints landing back to front, the greeter figurine popping in 0.9 s after its model is on screen. | Unchanged. |
+| 0.32 | Seven cobalt columns rise behind the lockup in alternating directions, odd ones down from the top and even ones up from the bottom, 55 ms apart from left to right. Where a column covers the lockup the letters are white. | Each column `clip-path: inset()` from shut to open, 0.36 s, `power2.inOut`. See "The columns" below. |
+| 1.01 | The columns have closed into one cobalt panel with white letters. The one still moment of the opening. | 0.22 s. |
+| 1.23 | The columns withdraw the way they came, in the same left-to-right order, and are gone as the flight begins. | Each column back to shut, 0.3 s, `power2.inOut`, 35 ms apart. |
+| 1.56 | The greeting settles down and out, gone before the rising name reaches its line. | y 0 to 8, opacity 1 to 0, 0.3 s, `power2.in`. The flyer's box first touches the greeting's line 0.17 s into the flight on phones and 0.2 s on desktop; the greeting is at zero 0.12 s in. |
+| 1.74 | The name travels to the nav wordmark's slot. | A hand-computed fit (see below), 0.8 s, `power2.inOut` (motion visible in the first frames). |
+| 2.19 | The hero entrance starts while the name is still in flight, in view. By now the shrinking flyer is above the eyebrow's line, so the two never overlap. | The existing hero timeline `play()`s here, so the eyebrow and headline rise into the centre as the name leaves it. |
+| 2.54 | The name lands. On that frame it is swapped for the real wordmark, the nav links and menu button fade in, the cover is removed, `inert` and scrolling are released. | `autoAlpha` swap; nav children y 8 to 0, opacity 0 to 1, 0.5 s, stagger 0.05; `lenis.start()`; `html.intro-active` removed. |
+| 2.54 onward | The hero entrance continues as it does today: sub, buttons, prints landing back to front, the greeter figurine popping in 0.9 s after its model is on screen. | Unchanged. |
 
-About 2.45 s from font-ready to handoff, about three and a half to a settled hero. With no
+About 2.54 s from font-ready to handoff, about three and a half to a settled hero. With no
 decoration it was 1.85 s and with the drawn frame 2.25 s; the owner asked for the decoration knowing
 it costs time.
 
@@ -192,10 +193,11 @@ skipped, the visitor just gets there sooner.
   after landing, and the settled hero identical to `main`. The revisit, reduced-motion and deep-link
   shots show no cover. After the opening, `html` carries neither `intro-active` nor `lenis-stopped`
   and its overflow is visible.
-- `python tools/intro_check.py shots/intro-v` reports a frame that is shut at its label and fully
-  retraced at the flight, a greeting overlap score of 0, a transparent cover with the first headline
+- `python tools/intro_check.py shots/intro-v` reports columns covering the whole panel at their label and fully
+  withdrawn at the flight, a greeting overlap score of 0, a transparent cover with the first headline
   line rising mid-flight, and box offsets of 0 px at the landing, at both viewports, and exits 0.
-- `python tools/intro_frame.py shots/frame` shows the frame drawing clockwise from the top left,
-  shut around the lockup, retracing counterclockwise, and absent when the flight begins.
+- `python tools/intro_frame.py shots/frame` shows the columns arriving in alternating directions,
+  closed into a panel with white letters, withdrawing in the same order, and gone when the flight
+  begins.
 - A critic agent reviews the frame sheets against `docs/intro-critic-brief.md`; the loop runs until
   it scores 8 or above with no blocking issue.

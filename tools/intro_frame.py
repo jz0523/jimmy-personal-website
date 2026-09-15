@@ -7,7 +7,7 @@ The six points are chosen by how much of the panel the columns cover, not by ela
 accelerating ease cannot hide its worst state between two samples.
 
 Writes <out_dir>/<viewport>-frame-N_<what>.png (the lockup cropped to the frame plus a margin,
-enlarged 2x so the hairline is legible), <viewport>-frame-sheet.png (the six tiled) and
+enlarged 2x so the column edges are legible), <viewport>-frame-sheet.png (the six tiled) and
 <viewport>-full-closed.png (the closed frame on the whole sheet, for the composition). The
 timeline is paused and seeked, so these are exact states, not samples of a recording. The page is
 captured at device scale 1: at 2 the two WebGL canvases stall for minutes under software GL.
@@ -41,7 +41,7 @@ def sheet(files, out, cols=3, scale=0.5):
     img.save(out)
 
 
-DRAWN = """t => {
+COVERAGE = """t => {
   window.__intro.time(t);
   const cover = () => {
     const cols = Array.from(document.querySelectorAll('.intro-col'));
@@ -58,14 +58,14 @@ DRAWN = """t => {
 }"""
 
 
-def seek_to_drawn(page, t_lo, t_hi, target):
-    """The time between t_lo and t_hi at which the given fraction of the frame is on the page."""
+def seek_to_coverage(page, t_lo, t_hi, target):
+    """The time between t_lo and t_hi at which the columns cover the given fraction of the panel."""
     lo, hi = min(t_lo, t_hi), max(t_lo, t_hi)
-    rising = page.evaluate(DRAWN, hi) > page.evaluate(DRAWN, lo)
+    rising = page.evaluate(COVERAGE, hi) > page.evaluate(COVERAGE, lo)
     for _ in range(24):
         mid = (lo + hi) / 2
-        drawn = page.evaluate(DRAWN, mid)
-        if (drawn < target) == rising:
+        coverage = page.evaluate(COVERAGE, mid)
+        if (coverage < target) == rising:
             lo = mid
         else:
             hi = mid
@@ -82,23 +82,23 @@ def run(browser, name, w, h):
     # A bare "window.__intro.pause()" returns the timeline, and serializing that graph crashes the renderer.
     page.evaluate("() => { window.__intro.pause(); }")
     labels = page.evaluate(
-        "() => { const l = window.__intro.labels; return { drawing: l.drawing, framed: l.framed, retrace: l.retrace, flight: l.flight }; }"
+        "() => { const l = window.__intro.labels; return { in: l['cols-in'], panel: l.panel, out: l['cols-out'], flight: l.flight }; }"
     )
-    draw = labels["framed"] - labels["drawing"]
-    undraw = labels["flight"] - labels["retrace"]
+    cols_in = labels["panel"] - labels["in"]
+    cols_out = labels["flight"] - labels["out"]
     # Sample by how much line is on the page, not by elapsed time: under an accelerating ease the
     # two are far apart, and the states that read worst are the ones no equal-time sample lands on.
     steps = [
-        ("0_draw25", seek_to_drawn(page, labels["drawing"], labels["framed"], 0.25)),
-        ("1_draw60", seek_to_drawn(page, labels["drawing"], labels["framed"], 0.60)),
-        ("2_closed", labels["framed"]),
+        ("0_in25", seek_to_coverage(page, labels["in"], labels["panel"], 0.25)),
+        ("1_in60", seek_to_coverage(page, labels["in"], labels["panel"], 0.60)),
+        ("2_panel", labels["panel"]),
         # Stop just short of the flight label: seeking onto it fires the callback that takes the name
         # out of the flow, which collapses the lockup and every box measured afterwards.
-        ("3_undraw40", seek_to_drawn(page, labels["flight"] - 0.002, labels["retrace"], 0.60)),
-        ("4_undraw80", seek_to_drawn(page, labels["flight"] - 0.002, labels["retrace"], 0.20)),
+        ("3_out60", seek_to_coverage(page, labels["flight"] - 0.002, labels["out"], 0.60)),
+        ("4_out20", seek_to_coverage(page, labels["flight"] - 0.002, labels["out"], 0.20)),
         ("5_flight", labels["flight"]),
     ]
-    page.evaluate("t => { window.__intro.time(t); }", labels["framed"])
+    page.evaluate("t => { window.__intro.time(t); }", labels["panel"])
     x, y, bw, bh = page.evaluate(BOX)
     clip = {"x": max(0, x - 30), "y": max(0, y - 30), "width": min(w, bw + 60), "height": bh + 60}
     # The closed panel on the whole sheet, for the composition. Taken before the steps: the last step
@@ -116,9 +116,9 @@ def run(browser, name, w, h):
         files.append(f)
     sheet(files, f"{OUT}/{name}-frame-sheet.png", scale=0.5 if name == "desktop" else 0.8)
     print(
-        name, "frame box:", [bw, bh],
-        "| draw", round(draw, 3), "s | shut", round(labels["retrace"] - labels["framed"], 3),
-        "s | retrace", round(undraw, 3), "s",
+        name, "panel box:", [bw, bh],
+        "| in", round(cols_in, 3), "s | panel", round(labels["out"] - labels["panel"], 3),
+        "s | out", round(cols_out, 3), "s",
     )
     ctx.close()
 

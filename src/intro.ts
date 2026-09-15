@@ -26,7 +26,7 @@ const HERO_AT = 0.45; // seconds into the flight when the hero entrance starts; 
 const COLS = 7;
 const COLS_AT = 0.32;
 const IN_EACH = 0.36;
-const IN_STAGGER = 0.04;
+const IN_STAGGER = 0.055; // at 40 ms neighbours were 11% apart and their passing edges cut the name into a checkerboard
 const HOLD = 0.22; // the one still moment: the name on a closed cobalt panel
 const OUT_EACH = 0.3;
 const OUT_STAGGER = 0.035;
@@ -137,19 +137,19 @@ export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknow
     .fromTo(names, { yPercent: 112 }, { yPercent: 0, duration: 0.8, ease: "power4.out" }, 0.05)
     // The columns close into a panel, hold, then withdraw the way they came. power2.inOut is its own
     // reverse, so each column leaves as gently as it arrived.
-    .add("drawing", COLS_AT)
+    .add("cols-in", COLS_AT)
     .fromTo(
       cols,
       { clipPath: (i: number) => shut(i) },
       { clipPath: OPEN, duration: IN_EACH, ease: "power2.inOut", stagger: IN_STAGGER },
-      "drawing",
+      "cols-in",
     )
-    .add("framed", COLS_AT + COVER_IN)
-    .add("retrace", `framed+=${HOLD}`)
+    .add("panel", COLS_AT + COVER_IN)
+    .add("cols-out", `panel+=${HOLD}`)
     .to(
       cols,
       { clipPath: (i: number) => shut(i), duration: OUT_EACH, ease: "power2.inOut", stagger: OUT_STAGGER },
-      "retrace",
+      "cols-out",
     )
     .add("flight", FLIGHT_AT) // the last column's last frame is the flight's first
     // The greeting is gone before the rising flyer reaches its line (their boxes touch 0.17 s into the

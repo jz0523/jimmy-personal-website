@@ -23,7 +23,7 @@ The design (full spec: `docs/superpowers/specs/2026-09-14-opening-animation-desi
 2. A greeting, "Hello, I'm", fades up in Geist Mono (sentence case, grey), and the name "Jimmy
    Zhong" rises out of a line mask in Bricolage Grotesque at the headline size, centred.
 3. Seven cobalt columns rise behind the two of them in alternating directions, odd ones down from
-   the top and even ones up from the bottom, 40 ms apart from left to right, until they close into
+   the top and even ones up from the bottom, 55 ms apart from left to right, until they close into
    one panel with the site's 16 px radius. Where a column covers the lockup its letters are white:
    each column carries its own white copy of the lockup clipped to its shape, with the ink original
    underneath, so the colour change follows the column edges exactly.
@@ -36,13 +36,14 @@ The design (full spec: `docs/superpowers/specs/2026-09-14-opening-animation-desi
    rise into the centre the name is leaving.
 7. On landing the nav links fade in, scrolling is released, the overlay is removed.
 
-There is no curtain, no wipe, no colour panel, no counter, no progress bar. The cover has no
-background of its own: the page under it is blank paper until the hero entrance plays, so the
-headline is seen rising while the name is still in flight, and nothing changes colour at any point.
+There is no curtain, no wipe, no full-screen panel, no counter, no progress bar. The one block of
+colour is the lockup-sized cobalt panel of decisions 25 to 28, gone before the name leaves. The
+cover has no background of its own: the page under it is blank paper until the hero entrance plays,
+so the headline is seen rising while the name is still in flight.
 
 Timing from the moment the display font is ready: greeting 0 to 0.45 s, name 0.05 to 0.85 s,
-columns arriving 0.32 to 0.92 s, panel shut 0.92 to 1.14 s, columns withdrawing 1.14 to 1.65 s,
-flight 1.65 to 2.45 s, hero entrance from 2.10 s. About 2.45 s to handoff: 1.85 s with no
+columns arriving 0.32 to 1.01 s, panel shut 1.01 to 1.23 s, columns withdrawing 1.23 to 1.74 s,
+flight 1.74 to 2.54 s, hero entrance from 2.19 s. About 2.54 s to handoff: 1.85 s with no
 decoration, 2.25 s with the drawn frame it replaces. The owner asked for the decoration knowing it
 costs time, so judge the pacing, not the total against the old numbers.
 
@@ -64,8 +65,8 @@ a deep link.
 - `shots/frame/desktop-frame-sheet.png` and `shots/frame/mobile-frame-sheet.png`: the columns at
   six points of their arrival and withdrawal, chosen by how much of the panel they cover rather than
   by elapsed time (the timeline is paused and seeked, so these are states, not samples), cropped to
-  the lockup and enlarged. The file names still say `draw`, `closed` and `undraw` from the frame
-  this replaced: 25, 60 and 100 percent covered on the way in, 60 and 20 percent on the way out.
+  the lockup and enlarged. File names give the coverage at each state: `0_in25`, `1_in60`, `2_panel`, `3_out60`,
+  `4_out20` and `5_flight`.
   `shots/frame/<viewport>-full-closed.png` is the closed panel on the whole sheet.
 - `shots/intro-v/desktop-revisit.png`, `-reduced.png`, `-hash.png` (and the mobile set): a reload
   in the same session, a reduced-motion visitor, a deep link to `/#work`. None may show the cover.
@@ -75,7 +76,8 @@ a deep link.
 
 ## 3. Accepted design decisions (do not reopen without evidence)
 
-1. No panel, wipe or colour change. A dark or cobalt full-screen panel is the loudest thing possible
+1. No full-screen panel, wipe or colour change (the lockup-sized cobalt panel of decisions 25 to 28
+   is the owner's own exception, asked for on 2026-09-15). A dark or cobalt full-screen panel is the loudest thing possible
    on a light site whose accent is used sparingly; the sources the design drew on put the ceiling for
    a decorative opening near two seconds and warn against covers that hide the page for effect.
 2. No counter or progress bar. Nothing on the page takes long enough to count (self-hosted fonts,
@@ -186,9 +188,16 @@ a deep link.
     seven copies line up exactly. The panel's 16 px radius and `overflow: hidden` round the outer
     corners of the first and last columns.
 28. Each column arrives over 0.36 s and leaves over 0.3 s, both `power2.inOut` (decision 20), with
-    staggers of 40 ms in and 35 ms out, in the same left-to-right order both ways, so the withdrawal
+    staggers of 55 ms in and 35 ms out, in the same left-to-right order both ways, so the withdrawal
     reads as the arrival played back rather than a new movement. The panel is shut for 0.22 s. The
     last column finishes leaving on the flight label.
+29. Round 7 notes taken. The in-stagger went from 40 to 55 ms: at 40 ms on a 0.36 s ease neighbours
+    were only 11% apart in progress, so for about 100 ms alternate edges crossed at the name's
+    mid-height and cut it into a checkerboard of white and ink, which read as a glitch rather than
+    a wave. It costs 0.09 s. The greeting's white copy went from 0.8 to 0.65 alpha: at 15 px mono a
+    column edge through its x-height left half-white, half-grey letters that looked busy, where the
+    name's split reads well. The timeline labels are `cols-in`, `panel` and `cols-out`, and the tools
+    report coverage from 0 to 1, so nothing still suggests the frame.
 
 Append new decisions here at the end of every round, with the measurement or reason.
 17. The wordmark's hit area is a pseudo-element 8 px above and below and 6 px either side of the
@@ -293,3 +302,10 @@ without the opening. "It feels slow" is not actionable; "the name holds still fr
   rows, was measured and closed by the critic itself.
 - 2026-09-15, after round 6: the owner replaced the drawn frame with cobalt columns (decisions 25 to
   28), on a new branch, `feat/opening-columns`. Rounds from here on judge the columns.
+- Round 7 (fresh critic, on the columns, with a seam probe at six widths and a copy-alignment probe):
+  8/10, SATISFIED, no blockers. No paper at any seam (worst 7 on a sum-of-RGB scale where paper is
+  about 500), white copies within 0.08 px of the ink, hard square white/ink edges, coverage 0 at the
+  flight, all four gates green. Nice-to-haves taken as decision 29 (stagger, greeting copy alpha,
+  labels) and in the stale wording of decision 1 and section 1. Not taken: starting the first and
+  last columns 20 ms later to hide one-frame corner slivers (harmless), and starting the flight
+  60 to 80 ms earlier (it would reorder the panel's withdrawal against the name leaving the flow).

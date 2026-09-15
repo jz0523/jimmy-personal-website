@@ -1,6 +1,6 @@
 """Four checks on the opening, at both viewports.
 
-0. The columns: they must cover the whole panel at the `framed` label and be fully withdrawn when
+0. The columns: they must cover the whole panel at the `panel` label and be fully withdrawn when
    the flight begins, so the decoration never overlaps the name's journey to the nav.
 1. The greeting's exit: stepping the timeline from the flight's start to 0.4 s in at 1/60 s, the
    greeting must have zero opacity whenever its box and the flyer's box intersect (the name must not
@@ -36,10 +36,10 @@ FRAME = """() => {
     }
     return sum / cols.length;
   };
-  tl.time(tl.labels.framed);
-  const closed = { perimeter: 1000, drawn: Math.round(cover() * 1000) };
+  tl.time(tl.labels.panel);
+  const closed = { coverage: +cover().toFixed(3) };
   tl.time(tl.labels.flight - 0.001); // just short of the label, whose callback takes the panel away
-  return { closed, atFlight: { perimeter: 1000, drawn: Math.round(cover() * 1000) } };
+  return { closed, atFlight: { coverage: +cover().toFixed(3) } };
 }"""
 SWEEP = """() => {
   const tl = window.__intro; tl.pause();
@@ -88,10 +88,10 @@ async def run(browser, name, w, h):
     await page.goto("http://localhost:5199/", wait_until="load")
     await page.wait_for_function("window.__intro && window.__intro.time() > 0.2")
     frame = await page.evaluate(FRAME)
-    print(name, "frame:", frame)
-    if frame["closed"]["drawn"] < frame["closed"]["perimeter"] - 1:
+    print(name, "columns:", frame)
+    if frame["closed"]["coverage"] < 0.999:
         FAILURES.append(f"{name}: the columns do not cover the panel at its label ({frame['closed']})")
-    if frame["atFlight"]["drawn"] > 1:
+    if frame["atFlight"]["coverage"] > 0.001:
         FAILURES.append(f"{name}: the columns have not withdrawn when the flight begins ({frame['atFlight']})")
     sweep = await page.evaluate(SWEEP)
     print(name, "greeting worst overlap:", sweep)
