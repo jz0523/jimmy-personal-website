@@ -3,6 +3,9 @@
 Usage: python tools/intro_frame.py [out_dir]
 Requires the dev server on http://localhost:5199 (npx vite --port 5199).
 
+The six points are chosen by how much of the frame is drawn, not by elapsed time, so an
+accelerating ease cannot hide its worst state between two samples.
+
 Writes <out_dir>/<viewport>-frame-N_<what>.png (the lockup cropped to the frame plus a margin,
 enlarged 2x so the hairline is legible) and <viewport>-frame-sheet.png (the six tiled). The
 timeline is paused and seeked, so these are exact states, not samples of a recording. The page is
@@ -37,6 +40,28 @@ def sheet(files, out, cols=3, scale=0.5):
     img.save(out)
 
 
+DRAWN = """t => {
+  window.__intro.time(t);
+  const cs = getComputedStyle(document.querySelector('.intro-frame rect'));
+  const arr = parseFloat(cs.strokeDasharray) || 1, off = parseFloat(cs.strokeDashoffset) || 0;
+  return (arr - off) / arr;
+}"""
+
+
+def seek_to_drawn(page, t_lo, t_hi, target):
+    """The time between t_lo and t_hi at which the given fraction of the frame is on the page."""
+    lo, hi = min(t_lo, t_hi), max(t_lo, t_hi)
+    rising = page.evaluate(DRAWN, hi) > page.evaluate(DRAWN, lo)
+    for _ in range(24):
+        mid = (lo + hi) / 2
+        drawn = page.evaluate(DRAWN, mid)
+        if (drawn < target) == rising:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
 def run(browser, name, w, h):
     ctx = browser.new_context(
         viewport={"width": w, "height": h}, is_mobile=(name == "mobile"), has_touch=(name == "mobile")
@@ -51,12 +76,16 @@ def run(browser, name, w, h):
     )
     draw = labels["framed"] - labels["drawing"]
     undraw = labels["flight"] - labels["retrace"]
+    # Sample by how much line is on the page, not by elapsed time: under an accelerating ease the
+    # two are far apart, and the states that read worst are the ones no equal-time sample lands on.
     steps = [
-        ("0_draw25", labels["drawing"] + draw * 0.25),
-        ("1_draw60", labels["drawing"] + draw * 0.60),
+        ("0_draw25", seek_to_drawn(page, labels["drawing"], labels["framed"], 0.25)),
+        ("1_draw60", seek_to_drawn(page, labels["drawing"], labels["framed"], 0.60)),
         ("2_closed", labels["framed"]),
-        ("3_undraw40", labels["retrace"] + undraw * 0.40),
-        ("4_undraw80", labels["retrace"] + undraw * 0.80),
+        # Stop just short of the flight label: seeking onto it fires the callback that takes the name
+        # out of the flow, which collapses the lockup and every box measured afterwards.
+        ("3_undraw40", seek_to_drawn(page, labels["flight"] - 0.002, labels["retrace"], 0.60)),
+        ("4_undraw80", seek_to_drawn(page, labels["flight"] - 0.002, labels["retrace"], 0.20)),
         ("5_flight", labels["flight"]),
     ]
     page.evaluate("t => { window.__intro.time(t); }", labels["framed"])

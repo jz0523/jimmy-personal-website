@@ -37,7 +37,7 @@ background of its own: the page under it is blank paper until the hero entrance 
 headline is seen rising while the name is still in flight, and nothing changes colour at any point.
 
 Timing from the moment the display font is ready: greeting 0 to 0.45 s, name 0.05 to 0.85 s, frame
-drawing 0.45 to 0.95 s, closed 0.95 to 1.17 s, retracing 1.17 to 1.45 s, flight 1.45 to 2.25 s, hero
+drawing 0.37 to 0.87 s, closed 0.87 to 1.09 s, retracing 1.09 to 1.45 s, flight 1.45 to 2.25 s, hero
 entrance from 1.90 s. About 2.25 s to handoff, up from 1.85 s before the frame; the owner asked for
 the decoration knowing it costs time, so judge the pacing, not the total against the old number.
 
@@ -121,17 +121,32 @@ a deep link.
     below 14 px or shortening the 0.18 s lead brings the collision back; do not trade one for the
     other. Round 4 confirmed the sweep reports it (score about 1100 to 1200) if the lead is removed.
 19. The decoration the owner asked for on 2026-09-15 is a hairline rounded rectangle, not a circle,
-    a glow or a fill: a 1.5 px stroke in ink at 0.26 alpha with the site's 16 px container radius,
-    18 to 34 px of horizontal padding and 15 to 26 px of vertical padding around the lockup. It reads
+    a glow or a fill: a 1 px stroke in ink at 0.34 alpha with the site's 16 px container radius,
+    21 to 34 px of horizontal padding and 15 to 26 px of vertical padding around the lockup. It reads
     as a name on a plate, which is what the page is: an introduction. No accent colour, since the
-    accent is spent on the hero headline seconds later.
-20. It draws clockwise from the top left over 0.5 s (`power2.inOut`), holds shut for 0.22 s, and
-    retraces counterclockwise over 0.28 s (`power2.in`), ending exactly as the flight begins. The
-    retrace is the draw undone, not a second lap: the rect's own path is stroked with one dash
-    offset, so putting the offset back walks the pen backwards.
-21. The svg is sized with explicit width and height, not `inset`. An svg is a replaced element, so
-    insets alone leave it at its 300 by 150 intrinsic size and the runtime `viewBox` then stretches
-    it to that ratio; the first build drew a 489 by 244 frame around a 489 by 184 lockup.
+    accent is spent on the hero headline seconds later. Round 5 measured the first build's 1.5 px at
+    0.26 alpha as 2.2 times the ink of the heaviest rule on the site, straddling the pixel grid at
+    device ratio 1 (the owner's own Chrome) where every other rule is crisp; 1 px at 0.34 holds the
+    same presence on one row. The horizontal floor went 18 to 21 px because on phones the side gaps
+    measured 3 px tighter than the top and bottom.
+20. It draws clockwise from the top left over 0.5 s, holds shut for 0.22 s, and retraces
+    counterclockwise over 0.36 s, ending exactly as the flight begins. Both use `power2.inOut`: a
+    symmetric ease is its own reverse, so the pen leaves as gently as it arrived. Round 5 measured
+    the first build's `power2.in` retrace leaving at its maximum velocity, 221 px in its last frame
+    against the draw's 123 px peak, with 45 percent of the frame gone in the last 50 ms; it now
+    peaks at 171 px mid-retrace and its last frame removes nothing.
+21. Nothing about the frame is measured in JavaScript. The rect is `width="100%" height="100%"` in
+    an svg with no `viewBox`, so it tracks the lockup's box at any viewport, and `pathLength="1000"`
+    normalises its path length, so one dash offset from 1000 to 0 draws it and back to 1000 retraces
+    it whatever its real perimeter is (1319 px on a laptop, 735 on a phone). The first build measured
+    once inside `fontsReady`, which races `document.fonts.ready` against an 800 ms timer, and froze a
+    pixel `viewBox`: round 5 showed a late font swap stretching that frozen box by 1.115 and turning
+    the 16 px corners into ellipses. The svg still needs explicit width and height rather than
+    `inset`, since a replaced element with insets alone stays at its 300 by 150 intrinsic size.
+22. The two faces the opening uses, Bricolage Grotesque latin and Geist Mono latin, are preloaded in
+    `index.html`. All six faces are `font-display: swap` and `document.fonts.ready` waits on all of
+    them, so before this the 800 ms timer winning the race was a normal cold-visit outcome and the
+    opening started against fallback metrics.
 
 Append new decisions here at the end of every round, with the measurement or reason.
 17. The wordmark's hit area is a pseudo-element 8 px above and below and 6 px either side of the
@@ -147,8 +162,15 @@ Append new decisions here at the end of every round, with the measurement or rea
 ## 4. Known tool limitations (do not report these as defects)
 
 - `tools/intro_frame.py` pauses and seeks the timeline instead of sampling a recording, so its six
-  frames are exact. It captures at device scale 1 and enlarges: at device scale 2 the page's two
+  frames are exact. It picks them by how much of the frame is drawn rather than by elapsed time,
+  since under an accelerating ease the two are far apart and an equal-time sample can miss the state
+  that reads worst. It captures at device scale 1 and enlarges: at device scale 2 the page's two
   WebGL canvases stall headless Chromium for minutes under software GL.
+- Two traps that have cost time in this repo, in case you write your own probe: evaluating a bare
+  expression that returns the GSAP timeline (`page.evaluate("window.__intro.pause()")`) crashes the
+  renderer when Playwright tries to serialise the animation graph, so wrap seeks in a function that
+  returns nothing or a small object; and seeking exactly onto the `flight` label fires the callback
+  that takes the name out of the flow, which collapses the lockup and every box measured afterwards.
 - Frames are cut from a screencast recording of headless Chromium (`tools/intro_shoot.py`), so they
   do not stall the page, but the screencast emits frames irregularly and a cut frame can repeat the
   previous one by up to about 100 ms. Treat any single-frame oddity as suspect and look at its
@@ -208,3 +230,13 @@ without the opening. "It feels slow" is not actionable; "the name holds still fr
   phones; opacity times overlap 0 at every step; the sweep proven to catch the regression. Nothing
   on the round-3 list regressed. Nice-to-haves taken: `tools/intro_check.py` exits 1 on any failed
   check, and the phone-margin guard is written into decision 16.
+- Round 5 (fresh critic, on the frame the owner asked for on 2026-09-15, with its own velocity sweep
+  at 1/60 s and a font-swap probe): 7/10, NOT SATISFIED. Blockers: the retrace left at its maximum
+  velocity and read as the frame being yanked off rather than the pen backing out; and the frame was
+  measured once against a font race it can lose, so a late swap stretched its frozen `viewBox`.
+  Addressed in decisions 20 and 21, the second by removing the measurement altogether. All four
+  nice-to-haves taken: the earlier draw start (decision 20), the 1 px stroke and the phone padding
+  (decision 19), and distance-based sampling in `tools/intro_frame.py`. Confirmed by the same critic:
+  the padding, the idea and the restraint, the mechanism being a genuine reverse, the legibility of
+  the draw, and that the decoration replaced dead air rather than adding to it, so the added 0.4 s
+  earns itself.

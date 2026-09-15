@@ -69,9 +69,9 @@ Times are seconds after the display font is ready (the existing hero entrance al
 | --- | --- | --- |
 | 0.00 | The greeting "Hello, I'm" fades up. | y 12 to 0, opacity 0 to 1, 0.45 s, `power3.out`. Geist Mono at 0.95 rem, sentence case, `--text-2`, `clamp(14px, 1.6vw, 22px)` above the name. Not an eyebrow: the page keeps its one-eyebrow rule. |
 | 0.05 | The name "Jimmy Zhong" rises out of a line mask. | `yPercent` 112 to 0, 0.8 s, `power4.out`, the same mask mechanics as the hero headline. Bricolage Grotesque, opsz 96, weight 500, the `h1` size. |
-| 0.45 | A hairline frame draws itself clockwise around the lockup, starting at the top left, as the name finishes rising. | `strokeDashoffset` from the perimeter to 0, 0.5 s, `power2.inOut`. See "The frame" below. |
-| 0.95 | The frame is shut. The one still moment of the opening: a name on a plate. | 0.22 s. |
-| 1.17 | The frame retraces the way it came, counterclockwise, and is gone as the flight begins. | `strokeDashoffset` back to the perimeter, 0.28 s, `power2.in`. |
+| 0.37 | A hairline frame draws itself clockwise around the lockup, starting at the top left, as the name finishes rising. | `strokeDashoffset` 1000 to 0, 0.5 s, `power2.inOut`. See "The frame" below. |
+| 0.87 | The frame is shut. The one still moment of the opening: a name on a plate. | 0.22 s. |
+| 1.09 | The frame retraces the way it came, counterclockwise, and is gone as the flight begins. | `strokeDashoffset` back to 1000, 0.36 s, `power2.inOut`: a symmetric ease is its own reverse, so the pen leaves as gently as it arrived. |
 | 1.27 | The greeting settles down and out, gone before the rising name reaches its line. | y 0 to 8, opacity 1 to 0, 0.3 s, `power2.in`. The flyer's box first touches the greeting's line 0.17 s into the flight on phones and 0.2 s on desktop; the greeting is at zero 0.12 s in. |
 | 1.45 | The name travels to the nav wordmark's slot. | A hand-computed fit (see below), 0.8 s, `power2.inOut` (motion visible in the first frames). |
 | 1.90 | The hero entrance starts while the name is still in flight, in view. By now the shrinking flyer is above the eyebrow's line, so the two never overlap. | The existing hero timeline `play()`s here, so the eyebrow and headline rise into the centre as the name leaves it. |
@@ -85,40 +85,28 @@ not grow with it, since the frame is moving through most of what used to be the 
 ### The frame
 
 An `svg` with one `rect`, absolutely positioned around the lockup and sized with explicit width and
-height (an `svg` is a replaced element, so `inset` alone leaves it at its 300 by 150 intrinsic size
-and a runtime `viewBox` then stretches it to that ratio). Once the display font is ready the box is
-measured, the `viewBox` is set to its pixel size so one user unit is one pixel, and the rect is
-inset by half the stroke so the hairline sits inside the box.
+height (an `svg` is a replaced element, so `inset` alone leaves it at its 300 by 150 intrinsic size).
+Nothing about it is measured in JavaScript:
+
+- The rect is `width="100%" height="100%"` in an svg with no `viewBox`, so one user unit is one
+  pixel and the rect tracks the lockup's box at any viewport, at any moment, including a late font
+  swap that changes the name's width mid-gesture.
+- `pathLength="1000"` normalises its path length, so `stroke-dasharray: 1000` with
+  `stroke-dashoffset` from 1000 to 0 draws it and back to 1000 retraces it, whatever its real
+  perimeter is (1319 px on a laptop, 735 on a phone). The rect starts undrawn from CSS alone, so
+  nothing flashes before the timeline reaches it.
+- The stroke straddles the box edge rather than being inset by half its width, which is why the svg
+  is `overflow: visible`. At 34 px of padding the half pixel outside is immaterial.
 
 A rect's own path starts just right of its top left corner and runs clockwise, so the whole gesture
-is one property: `stroke-dasharray` is the perimeter, `stroke-dashoffset` goes from the perimeter to
-0 to draw it, and back to the perimeter to retrace it. Putting the offset back walks the pen
-backwards along the path it drew, which is the reverse the owner asked for, rather than a second lap.
-The perimeter comes from `getTotalLength()`, with the rounded rectangle's own arithmetic as the
-fallback for engines that only implement it on paths.
+is one property. Putting the dash offset back walks the pen backwards along the line it drew, which
+is the reverse the owner asked for, rather than a second lap or a fade. Both halves use
+`power2.inOut`, which is its own reverse: an accelerating ease on the retrace ended at maximum
+velocity and read as the frame being snatched away.
 
-It is 1.5 px of ink at 0.26 alpha with the site's 16 px container radius. No accent colour: the
-accent is spent on the hero headline seconds later.
-
-### The fit
-
-GSAP's Flip plugin (free and installed since 3.13) was the obvious tool, but `Flip.fit` with
-`scale: true` matches width and height independently, and the big name and the wordmark have
-different aspect ratios (different optical size, weight and tracking), so it would squash the text.
-Instead, when the flight begins:
-
-1. Both boxes are measured live. The wordmark is `inline-block` with `line-height: 1`, and so is
-   the flyer, so both boxes are exactly one em tall and the uniform scale is the font-size ratio.
-2. The flyer is taken out of the flow (`position: fixed` at its measured spot, `transform-origin`
-   top left) so that changing its width mid-flight cannot re-centre it.
-3. One tween moves it by the measured offset, scales it, and tweens `font-weight` 500 to 600,
-   `font-variation-settings` opsz 96 to 24 and `letter-spacing` -0.035em to -0.02em, so on the last
-   frame it is set exactly like the wordmark. `tools/intro_check.py` pauses the timeline on that
-   frame and measures: all four box offsets are 0.0 px at 1440 and at 390 wide.
-4. On the landing frame the flyer is hidden and the nav is shown; the wordmark's first visible frame
-   is the one the name arrived on.
-
-The wordmark's `display` and `line-height` change moves its ink by 0 px (checked against `main`).
+It is 1 px of ink at 0.34 alpha with the site's 16 px container radius, matching the one-pixel rules
+used everywhere else on the page. No accent colour: the accent is spent on the hero headline seconds
+later.
 
 ### The seam
 
@@ -177,7 +165,8 @@ skipped, the visitor just gets there sooner.
 ## Files
 
 - `index.html`: the overlay markup as the first child of `body` (the frame's svg, greeting, masked
-  name), and the session, deep-link and reduced-motion gate in the existing inline head script.
+  name), the session, deep-link and reduced-motion gate in the existing inline head script, and a
+  preload for the two faces the opening uses, so the font race that gates its start is rarely lost.
 - `src/styles.css`: the wordmark measures as one em; an "Opening" block at the end (overlay,
   greeting, name mask, nav hidden while active, reduced-motion and no-intro rules).
 - `src/intro.ts`: `playOpening(hero, fontsReady, lenis)` builds and runs the timeline and resolves

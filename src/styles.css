@@ -1690,7 +1690,7 @@ html.intro-active .nav {
 /* A hairline frame draws itself around the lockup, then retraces before the name leaves.
    Its geometry is measured and set by the timeline; until then it is hidden. */
 .intro-frame {
-  --frame-x: clamp(18px, 2.4vw, 34px);
+  --frame-x: clamp(21px, 2.4vw, 34px);
   --frame-y: clamp(15px, 1.8vw, 26px);
   position: absolute;
   /* An svg is a replaced element: insets alone leave it at its 300x150 intrinsic size and the
@@ -1699,14 +1699,18 @@ html.intro-active .nav {
   top: calc(-1 * var(--frame-y));
   width: calc(100% + 2 * var(--frame-x));
   height: calc(100% + 2 * var(--frame-y));
-  overflow: visible;
+  overflow: visible; /* the stroke straddles the box edge, so its outer half must not be clipped */
   pointer-events: none;
-  visibility: hidden;
 }
+/* The rect sizes itself in percentages and its path length is normalised to 1000 by the pathLength
+   attribute, so one dash offset draws or retraces it at any viewport, and a late font swap that
+   changes the lockup's width needs no re-measuring. It starts undrawn. */
 .intro-frame rect {
   fill: none;
-  stroke: rgba(22, 23, 28, 0.26);
-  stroke-width: 1.5;
+  stroke: rgba(22, 23, 28, 0.34);
+  stroke-width: 1; /* every other rule on the site is 1px; 1.5 straddled the pixel grid and read soft */
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
 }
 .intro-greet {
   margin-bottom: clamp(14px, 1.6vw, 22px); /* the name halves on phones; the gap follows it */

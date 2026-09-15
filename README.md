@@ -31,7 +31,7 @@ npm run preview    # serves dist/ locally
 | `tools/interact.py` | Drives the hero figurine with mouse moves, a click and a scroll, and clips six frames to review the motion. |
 | `tools/intro_shoot.py` | Records the opening as video at 1440x900 and 390x844 and cuts a frame every 150 ms into a sheet, plus the revisit, reduced-motion and deep-link cases (needs the dev server on port 5199 and ffmpeg). |
 | `tools/intro_check.py` | Four checks on the opening: the drawn frame is shut at its label and retraced by the flight, the greeting is gone before the name reaches it, the cover is transparent and the headline is rising mid-flight, and the name's box matches the wordmark's on the last frame of the flight. Exits 1 on failure. |
-| `tools/intro_frame.py` | The opening's drawn frame at six exact points of its draw and retrace, by pausing and seeking the timeline. |
+| `tools/intro_frame.py` | The opening's drawn frame at six exact points of its draw and retrace, chosen by how much of it is on the page rather than by elapsed time, by pausing and seeking the timeline. |
 | `docs/critic-brief.md` | The running brief and decision log for design-critic rounds on the figurines. |
 | `docs/intro-critic-brief.md` | The same for the opening animation. |
 | `src/fonts.css`, `src/fonts/` | Self-hosted Bricolage Grotesque, Geist, Geist Mono (latin subsets). |
