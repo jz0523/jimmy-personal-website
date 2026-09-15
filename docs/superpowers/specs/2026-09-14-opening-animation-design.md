@@ -67,15 +67,15 @@ Times are seconds after the display font is ready (the existing hero entrance al
 
 | Time | What happens | How |
 | --- | --- | --- |
-| 0.00 | The greeting "Hello, I'm" fades up. | y 12 to 0, opacity 0 to 1, 0.5 s, `power3.out`. Geist Mono, sentence case, `--text-2`. Not an eyebrow: the page keeps its one-eyebrow rule. |
-| 0.05 | The name "Jimmy Zhong" rises out of a line mask. | `yPercent` 112 to 0, 0.9 s, `power4.out`, the same mask mechanics as the hero headline. Bricolage Grotesque, opsz 96, weight 500, the `h1` size. |
-| 0.95 | A beat. | Nothing moves for 0.3 s. |
-| 1.25 | The name travels to the nav wordmark's slot. The greeting settles down and out. | A hand-computed fit (see below), 0.8 s, `power3.inOut`; greeting y 0 to 8, opacity 1 to 0, 0.35 s, `power2.in`. |
-| 1.60 | The hero entrance starts while the name is still in flight. | The existing hero timeline `play()`s here, so the eyebrow and headline rise into the centre as the name leaves it. |
-| 2.05 | The name lands. On that frame it is swapped for the real wordmark, the nav links and menu button fade in, the overlay is removed, `inert` and scrolling are released. | `autoAlpha` swap; nav children y 8 to 0, opacity 0 to 1, 0.5 s, stagger 0.05; `lenis.start()`; `html.intro-active` removed. |
-| 2.05 onward | The hero entrance continues as it does today: sub, buttons, prints landing back to front, the greeter figurine popping in 0.9 s after its model is on screen. | Unchanged. |
+| 0.00 | The greeting "Hello, I'm" fades up. | y 12 to 0, opacity 0 to 1, 0.45 s, `power3.out`. Geist Mono at 0.95 rem, sentence case, `--text-2`, 22 px above the name. Not an eyebrow: the page keeps its one-eyebrow rule. |
+| 0.05 | The name "Jimmy Zhong" rises out of a line mask. | `yPercent` 112 to 0, 0.8 s, `power4.out`, the same mask mechanics as the hero headline. Bricolage Grotesque, opsz 96, weight 500, the `h1` size. |
+| 0.85 | A beat. | Nothing moves for 0.2 s (the ease has the name visually settled well before 0.85, so the read time is closer to half a second). |
+| 1.05 | The name travels to the nav wordmark's slot. The greeting settles down and out. | A hand-computed fit (see below), 0.8 s, `power2.inOut` (motion visible in the first frames); greeting y 0 to 8, opacity 1 to 0, 0.35 s, `power2.in`. |
+| 1.50 | The hero entrance starts while the name is still in flight, in view. By now the shrinking flyer is above the eyebrow's line, so the two never overlap. | The existing hero timeline `play()`s here, so the eyebrow and headline rise into the centre as the name leaves it. |
+| 1.85 | The name lands. On that frame it is swapped for the real wordmark, the nav links and menu button fade in, the cover is removed, `inert` and scrolling are released. | `autoAlpha` swap; nav children y 8 to 0, opacity 0 to 1, 0.5 s, stagger 0.05; `lenis.start()`; `html.intro-active` removed. |
+| 1.85 onward | The hero entrance continues as it does today: sub, buttons, prints landing back to front, the greeter figurine popping in 0.9 s after its model is on screen. | Unchanged. |
 
-About two seconds from font-ready to handoff, three to a settled hero.
+Under two seconds from font-ready to handoff, about three to a settled hero.
 
 ### The fit
 
@@ -99,8 +99,11 @@ The wordmark's `display` and `line-height` change moves its ink by 0 px (checked
 
 ### The seam
 
-- Same colour under and over: the overlay is `--bg` and sits under the grain layer, so its removal
-  changes no pixel.
+- The cover has no background of its own. The page under it is blank paper until the hero entrance
+  plays (the nav is hidden by class, the hero's elements sit at their pre-entrance states), so the
+  cover is only the greeting and the name, and the headline is seen rising while the name is still in
+  flight. A first version painted the cover in `--bg`; the in-page log showed the hero rising on
+  time but behind it, so it only appeared at the landing.
 - The nav is hidden (`visibility`) until the name lands, so the landing is the first frame the
   wordmark exists.
 - The hero timeline overlaps the flight by 0.45 s, so the eye is never looking at an empty sheet
@@ -151,21 +154,23 @@ skipped, the visitor just gets there sooner.
 - `src/main.ts`: builds the hero timeline (as today) and passes it to `playOpening` instead of
   playing it directly; the headline rotation waits for the entrance to complete.
 - `src/figures.ts`: a figure's enter pop waits while `html.intro-active` is set.
-- `tools/intro_shoot.py`: frames of the opening at 1440x900 and 390x844, tiled, plus the revisit,
-  reduced-motion and deep-link cases.
-- `tools/intro_check.py`: landing precision (box offsets on the last frame of the flight) and a 3x
-  crop of the swap.
+- `tools/intro_shoot.py`: a video recording of the opening at 1440x900 and 390x844 cut into frames
+  every 150 ms (screenshots stall the page, and with GSAP's lag smoothing off the animation jumps
+  between them), tiled, plus the revisit, reduced-motion and deep-link cases.
+- `tools/intro_check.py`: the seam (cover transparent and the headline rising mid-flight), landing
+  precision (box offsets on the last frame of the flight) and a 3x crop of the swap.
 - `docs/intro-critic-brief.md`: the brief for the critic rounds.
 - `README.md`: the new tools and file.
 
 ## Verification
 
 - `npm run build` type-checks and bundles.
-- `python tools/intro_shoot.py shots/intro` runs with zero page errors and shows: the greeting and
-  name centred, the name in flight, the headline rising during the flight, the wordmark in place
+- `python tools/intro_shoot.py shots/intro-v` runs with zero page errors and shows: the greeting
+  and name centred, the name in flight, the headline rising during the flight, the wordmark in place
   after landing, and the settled hero identical to `main`. The revisit, reduced-motion and deep-link
-  shots show no overlay. After the opening, `html` carries neither `intro-active` nor
-  `lenis-stopped` and its overflow is visible.
-- `python tools/intro_check.py shots/intro` reports box offsets of 0 px at both viewports.
+  shots show no cover. After the opening, `html` carries neither `intro-active` nor `lenis-stopped`
+  and its overflow is visible.
+- `python tools/intro_check.py shots/intro-v` reports a transparent cover with the first headline
+  line rising mid-flight, and box offsets of 0 px at the landing, at both viewports.
 - A critic agent reviews the frame sheets against `docs/intro-critic-brief.md`; the loop runs until
   it scores 8 or above with no blocking issue.

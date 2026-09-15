@@ -1,33 +1,41 @@
-"""Capture the opening animation as a frame sequence, for the critic loop.
+"""Capture the opening animation as a real-time frame sequence, for the critic loop.
 
 Usage: python tools/intro_shoot.py [out_dir] [desktop|mobile|both]
-Requires the dev server on http://localhost:5199 (npx vite --port 5199).
+Requires the dev server on http://localhost:5199 (npx vite --port 5199), or set SITE_URL to another
+origin (the preview server, say). Needs ffmpeg on PATH.
 
-Writes, per viewport:
-  <name>-intro-NN_<ms>.png   frames from first paint through the hero entrance (fresh session);
-                             <ms> is the real elapsed time when the capture began
-  <name>-sheet.png           the same frames tiled, oldest first
-  <name>-revisit.png         a reload in the same session: the opening must not replay
-  <name>-reduced.png         prefers-reduced-motion: the opening must be skipped
-  <name>-hash.png            landing on /#work: the opening must be skipped
+The opening is recorded as video (Playwright's screencast, which does not stall the page the way a
+screenshot does) and frames are cut from it every 150 ms, so what a frame shows is what a visitor
+saw at that moment. Writes, per viewport:
+  <name>-intro-NN_<ms>ms.png   frames from navigation start through the settled hero (fresh session);
+                               <ms> is the time since the recording began, which is a few dozen ms
+                               before navigation
+  <name>-sheet.png             the same frames tiled, oldest first
+  <name>-revisit.png           a reload in the same session: the opening must not replay
+  <name>-reduced.png           prefers-reduced-motion: the opening must be skipped
+  <name>-hash.png              landing on /#work: the opening must be skipped
 """
 import asyncio
+import glob
 import os
+import shutil
+import subprocess
 import sys
 import time
 
 from PIL import Image, ImageDraw
 from playwright.async_api import async_playwright
 
-URL = "http://localhost:5199/"
+URL = os.environ.get("SITE_URL", "http://localhost:5199/")
 OUT = sys.argv[1] if len(sys.argv) > 1 else "shots"
 WHICH = sys.argv[2] if len(sys.argv) > 2 else "both"
 VIEWPORTS = {"desktop": (1440, 900), "mobile": (390, 844)}
-TIMES = [0, 120, 250, 400, 550, 700, 850, 1000, 1150, 1300, 1450, 1600, 1800, 2000, 2300, 2600, 3000, 3600, 4400]
+STEP_MS = 150
+SPAN_MS = 4500
 ARGS = ["--use-angle=default", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-unsafe-swiftshader"]
 
 
-def sheet(files, out, cols=5, scale=0.3):
+def sheet(files, out, cols, scale):
     ims = [Image.open(f).convert("RGB") for f in files]
     w, h = ims[0].size
     tw, th = int(w * scale), int(h * scale)
@@ -46,9 +54,26 @@ def watch(page, errors):
     page.on(
         "console",
         lambda m: errors.append(f"console.{m.type}: {m.text[:160]}")
-        if m.type in ("error", "warning") and "WebGLProgram" not in m.text
+        if m.type in ("error", "warning") and "WebGLProgram" not in m.text and "_vercel/insights" not in m.text
         else None,
     )
+
+
+def cut_frames(video, name, w, h):
+    for old in glob.glob(f"{OUT}/{name}-intro-*.png"):
+        os.remove(old)
+    tmp = f"{OUT}/{name}-tmp-%03d.png"
+    subprocess.run(
+        ["ffmpeg", "-y", "-loglevel", "error", "-i", video, "-vf", f"fps=1000/{STEP_MS},scale={w}:{h}",
+         "-frames:v", str(SPAN_MS // STEP_MS + 1), tmp],
+        check=True,
+    )
+    files = []
+    for i, f in enumerate(sorted(glob.glob(f"{OUT}/{name}-tmp-*.png"))):
+        dst = f"{OUT}/{name}-intro-{i:02d}_{i * STEP_MS}ms.png"
+        os.replace(f, dst)
+        files.append(dst)
+    return files
 
 
 async def run(browser, name, w, h):
@@ -63,23 +88,14 @@ async def run(browser, name, w, h):
     await page.wait_for_timeout(1500)
     await ctx.close()
 
-    # Fresh session: the opening plays.
-    ctx = await browser.new_context(**base)
+    # Fresh session, recorded: the opening plays.
+    vdir = f"{OUT}/video-{name}"
+    shutil.rmtree(vdir, ignore_errors=True)
+    ctx = await browser.new_context(**base, record_video_dir=vdir, record_video_size={"width": w, "height": h})
     page = await ctx.new_page()
     watch(page, errors)
-    t0 = time.perf_counter()
-    await page.goto(URL, wait_until="commit")
-    files = []
-    for i, t in enumerate(TIMES):
-        now = (time.perf_counter() - t0) * 1000
-        if t > now:
-            await page.wait_for_timeout(t - now)
-        # The name carries the real elapsed time; a screenshot itself costs 50 to 300 ms, so targets drift.
-        ms = int((time.perf_counter() - t0) * 1000)
-        f = f"{OUT}/{name}-intro-{i:02d}_{ms}ms.png"
-        await page.screenshot(path=f)
-        files.append(f)
-    sheet(files, f"{OUT}/{name}-sheet.png")
+    await page.goto(URL, wait_until="load")
+    await page.wait_for_timeout(SPAN_MS + 300)
     state = await page.evaluate("document.documentElement.className")
     scrollable = await page.evaluate("getComputedStyle(document.documentElement).overflow")
     print(name, "html class after intro:", state, "| html overflow:", scrollable)
@@ -89,7 +105,11 @@ async def run(browser, name, w, h):
     await page.reload(wait_until="commit")
     await page.wait_for_timeout(max(0, 350 - (time.perf_counter() - t0) * 1000))
     await page.screenshot(path=f"{OUT}/{name}-revisit.png")
+    video = page.video
     await ctx.close()
+    files = cut_frames(await video.path(), name, w, h)
+    sheet(files, f"{OUT}/{name}-sheet.png", cols=6, scale=0.22 if name == "desktop" else 0.3)
+    shutil.rmtree(vdir, ignore_errors=True)
 
     # Reduced motion: skipped entirely.
     ctx = await browser.new_context(**base, reduced_motion="reduce")

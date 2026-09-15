@@ -1666,7 +1666,9 @@ html.no-figures .figure,
   display: grid;
   place-items: center;
   padding: var(--gutter);
-  background: var(--bg);
+  /* No background: the sheet is the page itself, which is blank paper until the hero entrance plays,
+     so the headline can be seen rising while the name is still in flight. */
+  background: transparent;
 }
 html.no-js .intro,
 html.no-intro .intro {
@@ -1679,9 +1681,9 @@ html.intro-active .nav {
   text-align: center;
 }
 .intro-greet {
-  margin-bottom: 18px;
+  margin-bottom: 22px;
   font-family: var(--font-mono);
-  font-size: 0.86rem;
+  font-size: 0.95rem;
   letter-spacing: 0.01em;
   color: var(--text-2);
 }

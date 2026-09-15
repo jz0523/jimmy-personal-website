@@ -29,8 +29,8 @@ npm run preview    # serves dist/ locally
 | `tools/shoot.py` | Playwright screenshots of every figurine slot at 1440x900 and 390x844 (needs the dev server on port 5199). |
 | `tools/profile.py` | Pixel gate for the figurines: no shadow may be cut at a slot's edge or at the render margin (reads the rects `shoot.py` writes). |
 | `tools/interact.py` | Drives the hero figurine with mouse moves, a click and a scroll, and clips six frames to review the motion. |
-| `tools/intro_shoot.py` | Frames of the opening at 1440x900 and 390x844, tiled into a sheet, plus the revisit, reduced-motion and deep-link cases (needs the dev server on port 5199). |
-| `tools/intro_check.py` | Landing precision for the opening: pauses the timeline on the last frame of the flight and measures the name's box against the wordmark's. |
+| `tools/intro_shoot.py` | Records the opening as video at 1440x900 and 390x844 and cuts a frame every 150 ms into a sheet, plus the revisit, reduced-motion and deep-link cases (needs the dev server on port 5199 and ffmpeg). |
+| `tools/intro_check.py` | Two checks on the opening: the cover is transparent and the headline is rising mid-flight, and the name's box matches the wordmark's on the last frame of the flight. |
 | `docs/critic-brief.md` | The running brief and decision log for design-critic rounds on the figurines. |
 | `docs/intro-critic-brief.md` | The same for the opening animation. |
 | `src/fonts.css`, `src/fonts/` | Self-hosted Bricolage Grotesque, Geist, Geist Mono (latin subsets). |

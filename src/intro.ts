@@ -1,7 +1,9 @@
 /*
   The opening: a greeting and the owner's name on the paper, then the name travels to its seat in
   the nav (where it is the wordmark for the rest of the visit) while the hero headline rises into
-  the space it left. No curtain, no wipe, no counter: the page is one sheet throughout.
+  the space it left. No curtain, no wipe, no counter: the page is one sheet throughout. The cover has
+  no background of its own; the page under it is blank paper until the hero entrance plays, which
+  starts while the name is still in flight, in view.
 
   The inline script in the head decides whether it plays (html.intro-active) or not (html.no-intro:
   seen this session, deep link, reduced motion, no JS). Either way the hero entrance ends up playing.
@@ -11,7 +13,7 @@ import type Lenis from "lenis";
 
 const KEY = "jz-intro";
 const FLIGHT = 0.8; // seconds the name is in the air
-const HERO_AT = 0.35; // seconds into the flight when the hero entrance starts
+const HERO_AT = 0.45; // seconds into the flight when the hero entrance starts; by then the flyer is above the eyebrow's line
 
 export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknown>, lenis: Lenis | null): void {
   const html = document.documentElement;
@@ -64,9 +66,9 @@ export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknow
 
   const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
   tl.set([greet, name], { visibility: "visible" }, 0)
-    .fromTo(greet, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5 }, 0)
-    .fromTo(name, { yPercent: 112 }, { yPercent: 0, duration: 0.9, ease: "power4.out" }, 0.05)
-    .add("flight", 1.25) // the name has settled at 0.95; a beat, then it goes
+    .fromTo(greet, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45 }, 0)
+    .fromTo(name, { yPercent: 112 }, { yPercent: 0, duration: 0.8, ease: "power4.out" }, 0.05)
+    .add("flight", 1.05) // the name has settled at 0.85; a beat, then it goes
     .to(greet, { y: 8, opacity: 0, duration: 0.35, ease: "power2.in" }, "flight")
     .add(prepare, "flight")
     .to(
@@ -80,7 +82,7 @@ export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknow
         fontVariationSettings: '"opsz" 24',
         letterSpacing: "-0.02em",
         duration: FLIGHT,
-        ease: "power3.inOut",
+        ease: "power2.inOut", // visible motion within the first frames; power3 sat still for a fifth of a second
       },
       "flight",
     )

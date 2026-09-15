@@ -1,8 +1,13 @@
-"""Landing precision for the opening: the flyer's box must match the wordmark's on the last frame of the flight.
+"""Two checks on the opening, at both viewports.
+
+1. The seam: 0.5 s into the flight the cover must be transparent and the hero's first headline line
+   must already be rising (translateY under 100% of its height), so the handoff happens in view.
+2. Landing precision: the flyer's box must match the wordmark's on the last frame of the flight.
 
 Usage: python tools/intro_check.py [out_dir]
 Requires the dev server on http://localhost:5199. Writes <out_dir>/<name>-landing.png: the nav corner at 3x,
-the frame before the swap above the frame after it. Prints the box offsets in px; anything over 1 px is a defect.
+the frame before the swap above the frame after it. Prints the seam values and the box offsets in px; a
+cover with alpha, a line still at or below 100%, or an offset over 1 px is a defect.
 """
 import asyncio
 import sys
@@ -12,6 +17,14 @@ from playwright.async_api import async_playwright
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "shots"
 ARGS = ["--use-angle=default", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-unsafe-swiftshader"]
+SEAM = """() => {
+  const tl = window.__intro; tl.pause();
+  tl.time(tl.labels.flight + 0.5); // callbacks fire on the way: prepare() and the hero's play()
+  const cover = getComputedStyle(document.getElementById('intro')).backgroundColor;
+  const line = document.querySelector('.hero .line-inner');
+  const m = new DOMMatrixReadOnly(getComputedStyle(line).transform);
+  return { cover, lineRisePct: Math.round(100 - (m.m42 / line.getBoundingClientRect().height) * 100) };
+}"""
 MEASURE = """() => {
   const tl = window.__intro; tl.pause();
   const end = tl.labels.flight + 0.8;
@@ -31,6 +44,12 @@ async def run(browser, name, w, h):
     page = await ctx.new_page()
     await page.goto("http://localhost:5199/", wait_until="load")
     await page.wait_for_function("window.__intro && window.__intro.time() > 0.2")
+    seam = await page.evaluate(SEAM)
+    await page.wait_for_timeout(400)  # the hero runs in real time once its play() has fired; its line tween begins at 0.1 s
+    seam["lineRisePct"] = await page.evaluate("""() => { const line = document.querySelector('.hero .line-inner');
+      const m = new DOMMatrixReadOnly(getComputedStyle(line).transform);
+      return Math.round(100 - (m.m42 / line.getBoundingClientRect().height) * 100); }""")
+    print(name, "seam:", seam)
     m = await page.evaluate(MEASURE)
     print(name, {k: (round(v, 2) if isinstance(v, float) else v) for k, v in m.items()})
     clip = {"x": 0, "y": 0, "width": min(w, 360), "height": 64}
