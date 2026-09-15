@@ -1687,35 +1687,46 @@ html.intro-active .nav {
   position: relative;
   text-align: center;
 }
-/* A hairline frame draws itself around the lockup, then retraces before the name leaves. It sizes
-   itself: nothing here is measured or set from JavaScript. */
-.intro-frame {
+/* Cobalt columns close into a panel behind the lockup, then withdraw (built in src/intro.ts).
+   Each column is a slice of the panel with its own white copy of the lockup, shifted by the column's
+   offset so the copies line up; where a column is, the letters are white on cobalt. Columns overlap
+   by a pixel so no paper shows between them, and the copies' offsets subtract that pixel back out. */
+.intro-cols {
   --frame-x: clamp(21px, 2.4vw, 34px);
   --frame-y: clamp(15px, 1.8vw, 26px);
   position: absolute;
-  /* An svg is a replaced element: insets alone leave it at its 300x150 intrinsic size and the
-     viewBox then stretches it to that ratio. Explicit width and height size it exactly. */
   left: calc(-1 * var(--frame-x));
   top: calc(-1 * var(--frame-y));
   width: calc(100% + 2 * var(--frame-x));
   height: calc(100% + 2 * var(--frame-y));
-  overflow: visible; /* the stroke straddles the box edge, so its outer half must not be clipped */
+  border-radius: var(--radius);
+  overflow: hidden;
   pointer-events: none;
 }
-/* The rect sizes itself in percentages and its path length is normalised to 1000 by the pathLength
-   attribute, so one dash offset draws or retraces it at any viewport, and a late font swap that
-   changes the lockup's width needs no re-measuring. It starts undrawn. */
-.intro-frame rect {
-  fill: none;
-  stroke: rgba(22, 23, 28, 0.34);
-  /* Every other rule on the site is 1px. The lockup is centred, so the box lands on a fractional
-     position and the stroke shares two device rows whatever its width; 1px at 0.34 puts the right
-     amount of ink there (74 units against a crisp row's 75) where 1.5px at 0.26 put 86. */
-  stroke-width: 1;
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
+.intro-col {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(100% * var(--i) / var(--n));
+  width: calc(100% / var(--n) + 1px);
+  overflow: hidden;
+  background: var(--accent);
+  clip-path: inset(0% 0% 100% 0%); /* shut until the timeline opens it */
 }
-.intro-greet {
+.intro-col:nth-child(even) {
+  clip-path: inset(100% 0% 0% 0%);
+}
+.intro-col-copy {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  left: calc(-1 * var(--i) * (100% - 1px));
+  width: calc(var(--n) * (100% - 1px));
+  padding: var(--frame-y) var(--frame-x);
+  text-align: center;
+}
+.intro-greet,
+.intro-greet-copy {
   margin-bottom: clamp(14px, 1.6vw, 22px); /* the name halves on phones; the gap follows it */
   font-family: var(--font-mono);
   font-size: 0.95rem;
@@ -1723,7 +1734,8 @@ html.intro-active .nav {
   color: var(--text-2);
 }
 /* The mask keeps its height when the flyer leaves the flow, so the greeting does not jump */
-.intro-name {
+.intro-name,
+.intro-name-copy {
   height: 1.08em;
   overflow: hidden;
   padding-bottom: 0.08em;
@@ -1735,9 +1747,16 @@ html.intro-active .nav {
   letter-spacing: -0.035em;
   white-space: nowrap;
 }
-.intro-name-inner {
+.intro-name-inner,
+.intro-name-inner-copy {
   display: inline-block;
   line-height: 1;
+}
+.intro-greet-copy {
+  color: rgba(255, 255, 255, 0.8);
+}
+.intro-name-copy {
+  color: #fff;
 }
 html.js .intro-greet,
 html.js .intro-name-inner {

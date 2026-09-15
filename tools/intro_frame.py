@@ -1,9 +1,9 @@
-"""Clip the drawn frame at six points of its draw and retrace, for the critic loop.
+"""Clip the opening's cobalt columns at six points of their arrival and withdrawal, for the critic loop.
 
 Usage: python tools/intro_frame.py [out_dir]
 Requires the dev server on http://localhost:5199 (npx vite --port 5199).
 
-The six points are chosen by how much of the frame is drawn, not by elapsed time, so an
+The six points are chosen by how much of the panel the columns cover, not by elapsed time, so an
 accelerating ease cannot hide its worst state between two samples.
 
 Writes <out_dir>/<viewport>-frame-N_<what>.png (the lockup cropped to the frame plus a margin,
@@ -22,7 +22,7 @@ URL = "http://localhost:5199/"
 OUT = sys.argv[1] if len(sys.argv) > 1 else "shots"
 ARGS = ["--use-angle=default", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-unsafe-swiftshader"]
 BOX = """() => {
-  const f = document.querySelector('.intro-frame').getBoundingClientRect();
+  const f = document.querySelector('.intro-cols').getBoundingClientRect();
   return [f.left, f.top, f.width, f.height].map(Math.round);
 }"""
 
@@ -43,9 +43,18 @@ def sheet(files, out, cols=3, scale=0.5):
 
 DRAWN = """t => {
   window.__intro.time(t);
-  const cs = getComputedStyle(document.querySelector('.intro-frame rect'));
-  const arr = parseFloat(cs.strokeDasharray) || 1, off = parseFloat(cs.strokeDashoffset) || 0;
-  return (arr - off) / arr;
+  const cover = () => {
+    const cols = Array.from(document.querySelectorAll('.intro-col'));
+    if (!cols.length) return 0;
+    let sum = 0;
+    for (const c of cols) {
+      const v = (getComputedStyle(c).clipPath.match(/-?[\\d.]+(?=%)/g) || []).map(Number);
+      const [t, , b] = v.length === 4 ? v : v.length === 3 ? v : v.length === 2 ? [v[0], v[1], v[0]] : [v[0] || 0, 0, v[0] || 0];
+      sum += Math.max(0, 100 - t - b) / 100;
+    }
+    return sum / cols.length;
+  };
+  return cover();
 }"""
 
 
@@ -92,6 +101,10 @@ def run(browser, name, w, h):
     page.evaluate("t => { window.__intro.time(t); }", labels["framed"])
     x, y, bw, bh = page.evaluate(BOX)
     clip = {"x": max(0, x - 30), "y": max(0, y - 30), "width": min(w, bw + 60), "height": bh + 60}
+    # The closed panel on the whole sheet, for the composition. Taken before the steps: the last step
+    # seeks onto the flight label, whose callback takes the name out of the flow for good.
+    page.wait_for_timeout(60)
+    page.screenshot(path=f"{OUT}/{name}-full-closed.png")
     files = []
     for label, t in steps:
         page.evaluate("t => { window.__intro.time(t); }", t)
@@ -102,10 +115,6 @@ def run(browser, name, w, h):
         im.resize((im.width * 2, im.height * 2), Image.LANCZOS).save(f)
         files.append(f)
     sheet(files, f"{OUT}/{name}-frame-sheet.png", scale=0.5 if name == "desktop" else 0.8)
-    # The closed frame on the whole sheet, for the composition rather than the gesture.
-    page.evaluate("t => { window.__intro.time(t); }", labels["framed"])
-    page.wait_for_timeout(60)
-    page.screenshot(path=f"{OUT}/{name}-full-closed.png")
     print(
         name, "frame box:", [bw, bh],
         "| draw", round(draw, 3), "s | shut", round(labels["retrace"] - labels["framed"], 3),

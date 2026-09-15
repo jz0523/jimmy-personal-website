@@ -30,8 +30,8 @@ npm run preview    # serves dist/ locally
 | `tools/profile.py` | Pixel gate for the figurines: no shadow may be cut at a slot's edge or at the render margin (reads the rects `shoot.py` writes). |
 | `tools/interact.py` | Drives the hero figurine with mouse moves, a click and a scroll, and clips six frames to review the motion. |
 | `tools/intro_shoot.py` | Records the opening as video at 1440x900 and 390x844 and cuts a frame every 150 ms into a sheet, plus the revisit, reduced-motion and deep-link cases (needs the dev server on port 5199 and ffmpeg). |
-| `tools/intro_check.py` | Four checks on the opening: the drawn frame is shut at its label and retraced by the flight, the greeting is gone before the name reaches it, the cover is transparent and the headline is rising mid-flight, and the name's box matches the wordmark's on the last frame of the flight. Exits 1 on failure. |
-| `tools/intro_frame.py` | The opening's drawn frame at six exact points of its draw and retrace, chosen by how much of it is on the page rather than by elapsed time, by pausing and seeking the timeline. |
+| `tools/intro_check.py` | Four checks on the opening: the cobalt columns cover the panel at their label and are withdrawn by the flight, the greeting is gone before the name reaches it, the cover is transparent and the headline is rising mid-flight, and the name's box matches the wordmark's on the last frame of the flight. Exits 1 on failure. |
+| `tools/intro_frame.py` | The opening's cobalt columns at six exact points of their arrival and withdrawal, chosen by how much of it is on the page rather than by elapsed time, by pausing and seeking the timeline. |
 | `docs/critic-brief.md` | The running brief and decision log for design-critic rounds on the figurines. |
 | `docs/intro-critic-brief.md` | The same for the opening animation. |
 | `src/fonts.css`, `src/fonts/` | Self-hosted Bricolage Grotesque, Geist, Geist Mono (latin subsets). |
@@ -56,5 +56,5 @@ npm run preview    # serves dist/ locally
 - Radius system: pills for interactive elements, 16px for containers and photo frames, 6px for chips.
 - No em-dashes or en-dashes anywhere in visible text.
 - Motion is gated on `prefers-reduced-motion`; the point field renders one static frame under it, the figurines hold still, and the opening does not play.
-- The opening is on the same paper as the page: no panel, no wipe, no counter. A hairline frame draws itself around the greeting and the name and retraces before they leave; the name itself becomes the nav wordmark, and the hero entrance starts while it is still in flight.
+- The opening is on the same paper as the page: no panel, no wipe, no counter. Cobalt columns close into a panel behind the greeting and the name, turning their letters white, and withdraw before they leave; the name itself becomes the nav wordmark, and the hero entrance starts while it is still in flight.
 - The figurines are objects on the page, not features: no captions, no labels, no panels behind them, plinths clipped away, one light direction, the same rendered head size everywhere. Sections without room for one (Experience, Off the clock, Toolbox) get none.

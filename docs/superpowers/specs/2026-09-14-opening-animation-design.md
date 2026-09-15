@@ -69,50 +69,41 @@ Times are seconds after the display font is ready (the existing hero entrance al
 | --- | --- | --- |
 | 0.00 | The greeting "Hello, I'm" fades up. | y 12 to 0, opacity 0 to 1, 0.45 s, `power3.out`. Geist Mono at 0.95 rem, sentence case, `--text-2`, `clamp(14px, 1.6vw, 22px)` above the name. Not an eyebrow: the page keeps its one-eyebrow rule. |
 | 0.05 | The name "Jimmy Zhong" rises out of a line mask. | `yPercent` 112 to 0, 0.8 s, `power4.out`, the same mask mechanics as the hero headline. Bricolage Grotesque, opsz 96, weight 500, the `h1` size. |
-| 0.37 | A hairline frame draws itself clockwise around the lockup, starting at the top left, as the name finishes rising. | `strokeDashoffset` 1000 to 0, 0.5 s, `power2.inOut`. See "The frame" below. |
-| 0.87 | The frame is shut. The one still moment of the opening: a name on a plate. | 0.22 s. |
-| 1.09 | The frame retraces the way it came, counterclockwise, and is gone as the flight begins. | `strokeDashoffset` back to 1000, 0.36 s, `power2.inOut`: a symmetric ease is its own reverse, so the pen leaves as gently as it arrived. |
-| 1.27 | The greeting settles down and out, gone before the rising name reaches its line. | y 0 to 8, opacity 1 to 0, 0.3 s, `power2.in`. The flyer's box first touches the greeting's line 0.17 s into the flight on phones and 0.2 s on desktop; the greeting is at zero 0.12 s in. |
-| 1.45 | The name travels to the nav wordmark's slot. | A hand-computed fit (see below), 0.8 s, `power2.inOut` (motion visible in the first frames). |
-| 1.90 | The hero entrance starts while the name is still in flight, in view. By now the shrinking flyer is above the eyebrow's line, so the two never overlap. | The existing hero timeline `play()`s here, so the eyebrow and headline rise into the centre as the name leaves it. |
-| 2.25 | The name lands. On that frame it is swapped for the real wordmark, the nav links and menu button fade in, the cover is removed, `inert` and scrolling are released. | `autoAlpha` swap; nav children y 8 to 0, opacity 0 to 1, 0.5 s, stagger 0.05; `lenis.start()`; `html.intro-active` removed. |
-| 2.25 onward | The hero entrance continues as it does today: sub, buttons, prints landing back to front, the greeter figurine popping in 0.9 s after its model is on screen. | Unchanged. |
+| 0.32 | Seven cobalt columns rise behind the lockup in alternating directions, odd ones down from the top and even ones up from the bottom, 40 ms apart from left to right. Where a column covers the lockup the letters are white. | Each column `clip-path: inset()` from shut to open, 0.36 s, `power2.inOut`. See "The columns" below. |
+| 0.92 | The columns have closed into one cobalt panel with white letters. The one still moment of the opening. | 0.22 s. |
+| 1.14 | The columns withdraw the way they came, in the same left-to-right order, and are gone as the flight begins. | Each column back to shut, 0.3 s, `power2.inOut`, 35 ms apart. |
+| 1.47 | The greeting settles down and out, gone before the rising name reaches its line. | y 0 to 8, opacity 1 to 0, 0.3 s, `power2.in`. The flyer's box first touches the greeting's line 0.17 s into the flight on phones and 0.2 s on desktop; the greeting is at zero 0.12 s in. |
+| 1.65 | The name travels to the nav wordmark's slot. | A hand-computed fit (see below), 0.8 s, `power2.inOut` (motion visible in the first frames). |
+| 2.10 | The hero entrance starts while the name is still in flight, in view. By now the shrinking flyer is above the eyebrow's line, so the two never overlap. | The existing hero timeline `play()`s here, so the eyebrow and headline rise into the centre as the name leaves it. |
+| 2.45 | The name lands. On that frame it is swapped for the real wordmark, the nav links and menu button fade in, the cover is removed, `inert` and scrolling are released. | `autoAlpha` swap; nav children y 8 to 0, opacity 0 to 1, 0.5 s, stagger 0.05; `lenis.start()`; `html.intro-active` removed. |
+| 2.45 onward | The hero entrance continues as it does today: sub, buttons, prints landing back to front, the greeter figurine popping in 0.9 s after its model is on screen. | Unchanged. |
 
-About 2.25 s from font-ready to handoff, three and a half to a settled hero. Without the frame it was
-1.85 s; the owner asked for the decoration on 2026-09-15 knowing it costs time, and the stillness did
-not grow with it, since the frame is moving through most of what used to be the reading beat.
+About 2.45 s from font-ready to handoff, about three and a half to a settled hero. With no
+decoration it was 1.85 s and with the drawn frame 2.25 s; the owner asked for the decoration knowing
+it costs time.
 
-### The frame
+### The columns
 
-An `svg` with one `rect`, absolutely positioned around the lockup and sized with explicit width and
-height (an `svg` is a replaced element, so `inset` alone leaves it at its 300 by 150 intrinsic size).
-Nothing about it is measured in JavaScript:
+The owner asked on 2026-09-15 for "blue columns appearing alternatively behind the name" in place of
+a hairline frame drawn around the lockup, which in turn they had asked for in place of nothing. They
+turned down brush strokes as too artistic for the site.
 
-- The rect is `width="100%" height="100%"` in an svg with no `viewBox`, so one user unit is one
-  pixel and the rect tracks the lockup's box at any viewport, at any moment, including a late font
-  swap that changes the name's width mid-gesture.
-- `pathLength="1000"` normalises its path length, so `stroke-dasharray: 1000` with
-  `stroke-dashoffset` from 1000 to 0 draws it and back to 1000 retraces it, whatever its real
-  perimeter is (1319 px on a laptop, 735 on a phone). The rect starts undrawn from CSS alone, so
-  nothing flashes before the timeline reaches it.
-- The stroke straddles the box edge rather than being inset by half its width, which is why the svg
-  is `overflow: visible`. At 34 px of padding the half pixel outside is immaterial.
-- `pathLength` on a `rect` is SVG 2 (Chrome 88, Firefox 97, Safari 14). An engine that ignored it
-  would draw about three quarters of the frame and stop, so the opening checks that the attribute
-  was honoured and hides the frame if it was not: that visitor gets the opening without its
-  decoration rather than a broken one.
-
-A rect's own path starts just right of its top left corner and runs clockwise, so the whole gesture
-is one property. Putting the dash offset back walks the pen backwards along the line it drew, which
-is the reverse the owner asked for, rather than a second lap or a fade. Both halves use
-`power2.inOut`, which is its own reverse: an accelerating ease on the retrace ended at maximum
-velocity and read as the frame being snatched away.
-
-It is 1 px of ink at 0.34 alpha with the site's 16 px container radius, matching the one-pixel rules
-used everywhere else on the page. No accent colour: the accent is spent on the hero headline seconds
-later. The lockup is centred, so the frame's box lands on a fractional position and the hairline
-shares two device rows at device ratio 1 whatever its width; 1 px at 0.34 puts 74 ink units there
-against a crisp row's 75, so the weight is right even though it has no dark core.
+- `src/intro.ts` builds a panel of seven columns inside `.intro-stack`, after the ink lockup so it
+  paints over it. The panel is the lockup's box plus 21 to 34 px each side and 15 to 26 px above and
+  below, with the site's 16 px radius and `overflow: hidden`.
+- Each column is a seventh of the panel plus one pixel, so no paper shows between neighbours, with a
+  cobalt background. It opens and closes with `clip-path: inset()`: odd columns from
+  `inset(0 0 100% 0)` (growing down from the top), even ones from `inset(100% 0 0 0)` (growing up
+  from the bottom). A clip reveals a column's contents instead of squashing them, which a `scaleY`
+  would do.
+- Each column carries a white copy of the whole lockup, shifted left by the column's offset (less
+  the extra pixel) so the seven copies line up into one lockup across the panel. The ink original
+  stays underneath, so wherever a column is the letters are white and wherever it is not they are
+  ink, following the column edges exactly, with no colour tween to keep in step. The copies are made
+  from the originals' text and move in the same tweens as the originals.
+- Nothing is measured: the panel and columns size themselves in CSS from the lockup's own box, so
+  they follow a late font swap like everything else in the stack.
+- The panel is fully withdrawn on the flight label, before the name is taken out of the flow.
 
 ### The seam
 
@@ -170,8 +161,8 @@ skipped, the visitor just gets there sooner.
 
 ## Files
 
-- `index.html`: the overlay markup as the first child of `body` (the frame's svg, greeting, masked
-  name), the session, deep-link and reduced-motion gate in the existing inline head script, and a
+- `index.html`: the overlay markup as the first child of `body` (greeting, masked name; the columns
+  are built from it by `src/intro.ts`), the session, deep-link and reduced-motion gate in the existing inline head script, and a
   preload for the two faces the opening uses, so the font race that gates its start is rarely lost.
 - `src/styles.css`: the wordmark measures as one em; an "Opening" block at the end (overlay,
   greeting, name mask, nav hidden while active, reduced-motion and no-intro rules).
@@ -183,12 +174,12 @@ skipped, the visitor just gets there sooner.
 - `tools/intro_shoot.py`: a video recording of the opening at 1440x900 and 390x844 cut into frames
   every 150 ms (screenshots stall the page, and with GSAP's lag smoothing off the animation jumps
   between them), tiled, plus the revisit, reduced-motion and deep-link cases.
-- `tools/intro_check.py`: the frame (fully drawn at its label, fully retraced when the flight
-  begins), the greeting's exit (a 1/60 s sweep of the first 0.4 s of the flight, worst opacity times
+- `tools/intro_check.py`: the columns (covering the whole panel at their label, fully withdrawn when
+  the flight begins), the greeting's exit (a 1/60 s sweep of the first 0.4 s of the flight, worst opacity times
   overlap must be 0), the seam (cover transparent and the headline rising mid-flight), landing
   precision (box offsets on the last frame of the flight) and a 3x crop of the swap. Exits 1 on any
   failure.
-- `tools/intro_frame.py`: the frame at six exact points of its draw and retrace, by pausing and
+- `tools/intro_frame.py`: the columns at six exact points of their arrival and withdrawal, by pausing and
   seeking the timeline rather than sampling a recording.
 - `docs/intro-critic-brief.md`: the brief for the critic rounds.
 - `README.md`: the new tools and file.

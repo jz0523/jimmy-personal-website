@@ -22,9 +22,13 @@ The design (full spec: `docs/superpowers/specs/2026-09-14-opening-animation-desi
 1. First paint is the empty paper sheet. The nav is hidden.
 2. A greeting, "Hello, I'm", fades up in Geist Mono (sentence case, grey), and the name "Jimmy
    Zhong" rises out of a line mask in Bricolage Grotesque at the headline size, centred.
-3. A hairline rounded rectangle draws itself clockwise around the two of them, from the top left,
-   and closes. The lockup sits inside it like a name on a plate.
-4. The frame holds shut for a beat, then retraces the way it came, counterclockwise, and is gone.
+3. Seven cobalt columns rise behind the two of them in alternating directions, odd ones down from
+   the top and even ones up from the bottom, 40 ms apart from left to right, until they close into
+   one panel with the site's 16 px radius. Where a column covers the lockup its letters are white:
+   each column carries its own white copy of the lockup clipped to its shape, with the ink original
+   underneath, so the colour change follows the column edges exactly.
+4. The panel holds for a beat, then the columns withdraw the way they came, left to right, and are
+   gone, leaving the ink lockup on paper.
 5. The name travels to the nav wordmark's slot in the top-left corner, shrinking as it goes, while
    the greeting settles out. Its font axes tween from the headline's setting to the wordmark's, so
    the frame it lands on is pixel-identical to the real wordmark, which replaces it on that frame.
@@ -36,10 +40,11 @@ There is no curtain, no wipe, no colour panel, no counter, no progress bar. The 
 background of its own: the page under it is blank paper until the hero entrance plays, so the
 headline is seen rising while the name is still in flight, and nothing changes colour at any point.
 
-Timing from the moment the display font is ready: greeting 0 to 0.45 s, name 0.05 to 0.85 s, frame
-drawing 0.37 to 0.87 s, closed 0.87 to 1.09 s, retracing 1.09 to 1.45 s, flight 1.45 to 2.25 s, hero
-entrance from 1.90 s. About 2.25 s to handoff, up from 1.85 s before the frame; the owner asked for
-the decoration knowing it costs time, so judge the pacing, not the total against the old number.
+Timing from the moment the display font is ready: greeting 0 to 0.45 s, name 0.05 to 0.85 s,
+columns arriving 0.32 to 0.92 s, panel shut 0.92 to 1.14 s, columns withdrawing 1.14 to 1.65 s,
+flight 1.65 to 2.45 s, hero entrance from 2.10 s. About 2.45 s to handoff: 1.85 s with no
+decoration, 2.25 s with the drawn frame it replaces. The owner asked for the decoration knowing it
+costs time, so judge the pacing, not the total against the old numbers.
 
 Judge, in this order: (a) does it read as a welcome and match the quiet editorial theme, (b) is it
 restrained enough (the owner's words: "should not be super exaggerated"), (c) is the handoff into
@@ -56,10 +61,12 @@ a deep link.
 - `shots/intro-v/desktop-landing.png`, `shots/intro-v/mobile-landing.png`: the nav corner at 3x,
   the last frame of the flight above the first frame after the swap. They should be
   indistinguishable.
-- `shots/frame/desktop-frame-sheet.png` and `shots/frame/mobile-frame-sheet.png`: the frame at six
-  points of its draw and retrace, chosen by how much of it is on the page rather than by elapsed
-  time (the timeline is paused and seeked, so these are states, not samples), cropped to the lockup
-  and enlarged. `shots/frame/<viewport>-full-closed.png` is the closed frame on the whole sheet.
+- `shots/frame/desktop-frame-sheet.png` and `shots/frame/mobile-frame-sheet.png`: the columns at
+  six points of their arrival and withdrawal, chosen by how much of the panel they cover rather than
+  by elapsed time (the timeline is paused and seeked, so these are states, not samples), cropped to
+  the lockup and enlarged. The file names still say `draw`, `closed` and `undraw` from the frame
+  this replaced: 25, 60 and 100 percent covered on the way in, 60 and 20 percent on the way out.
+  `shots/frame/<viewport>-full-closed.png` is the closed panel on the whole sheet.
 - `shots/intro-v/desktop-revisit.png`, `-reduced.png`, `-hash.png` (and the mobile set): a reload
   in the same session, a reduced-motion visitor, a deep link to `/#work`. None may show the cover.
 - Source, read-only: `index.html` (the `#intro` block and the inline head script that decides
@@ -158,6 +165,30 @@ a deep link.
     frame and stop, never closing: a silent hard failure. The opening checks that the attribute was
     honoured and hides the frame if it was not, so such a visitor gets the opening without its
     decoration rather than a broken one.
+25. On 2026-09-15 the owner replaced the drawn frame. Decisions 19, 20, 21, 23 and 24 describe that
+    frame and are kept as history only; 22 (the font preloads) and the lesson of 20 (a symmetric
+    ease for anything that undoes itself) still apply. The owner turned down brush strokes as too
+    artistic and asked for "blue columns appearing alternatively behind the name", as more
+    professional. The details they approved: alternating direction (odd columns from the top, even
+    from the bottom) with a slight left-to-right stagger; the columns closing into one solid panel;
+    reaching just behind the lockup, the size the frame was; solid cobalt with white letters rather
+    than a light tint with ink letters; seven columns.
+26. White on cobalt without a colour tween: each column is a slice of the panel carrying a white copy
+    of the whole lockup shifted by the column's own offset, clipped by the column's `clip-path`. The
+    ink original stays underneath, so wherever a column is the letters are white and wherever it is
+    not they are ink, edge for edge, at every moment of the arrival and withdrawal. The copies are
+    built in `src/intro.ts` from the originals' text and move in the same tweens as the originals
+    (the greeting's fade, the name's rise, the greeting's exit). White is 5.9 to 1 on cobalt; the
+    greeting's copy is white at 0.8 alpha, the name's is solid.
+27. Columns open and close with `clip-path: inset()` rather than `scaleY`, so the white copies inside
+    them are revealed, never squashed. Each column is one pixel wider than a seventh of the panel so
+    no paper shows between neighbours, and each copy's offset subtracts that pixel back out so the
+    seven copies line up exactly. The panel's 16 px radius and `overflow: hidden` round the outer
+    corners of the first and last columns.
+28. Each column arrives over 0.36 s and leaves over 0.3 s, both `power2.inOut` (decision 20), with
+    staggers of 40 ms in and 35 ms out, in the same left-to-right order both ways, so the withdrawal
+    reads as the arrival played back rather than a new movement. The panel is shut for 0.22 s. The
+    last column finishes leaving on the flight label.
 
 Append new decisions here at the end of every round, with the measurement or reason.
 17. The wordmark's hit area is a pseudo-element 8 px above and below and 6 px either side of the
@@ -260,3 +291,5 @@ without the opening. "It feels slow" is not actionable; "the name holds still fr
   Mobile padding came out tighter than desktop's at a 1.5 px spread. Three nice-to-haves taken as
   decisions 23 and 24 and in `tools/intro_frame.py`; the fourth, the hairline sharing two device
   rows, was measured and closed by the critic itself.
+- 2026-09-15, after round 6: the owner replaced the drawn frame with cobalt columns (decisions 25 to
+  28), on a new branch, `feat/opening-columns`. Rounds from here on judge the columns.
