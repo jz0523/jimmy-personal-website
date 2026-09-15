@@ -108,7 +108,10 @@ a deep link.
     of grey mono text printed over the moving name. With the tighter phone gap of decision 18 the
     boxes touch at + 0.17 s there, hence the 0.18 s lead rather than the 0.12 s first tried.
     `tools/intro_check.py` now sweeps the first 0.4 s of the flight at 1/60 s and reports the worst
-    opacity times overlap, which must be 0 at both widths.
+    opacity times overlap, which must be 0 at both widths. Guard: on phones the margin is 30 ms (the
+    greeting at zero at + 0.12 s, the text boxes touching at + 0.15 s). Tightening the phone gap
+    below 14 px or shortening the 0.18 s lead brings the collision back; do not trade one for the
+    other. Round 4 confirmed the sweep reports it (score about 1100 to 1200) if the lead is removed.
 17. The wordmark's hit area is a pseudo-element 8 px above and below and 6 px either side of the
     one-em box (which the flyer measures and which stays as it is), so the home link's target is back
     above 24 px tall after decision 3 shrank its box from 27 to 17 px.
@@ -175,3 +178,8 @@ without the opening. "It feels slow" is not actionable; "the name holds still fr
   (wordmark hit area, smoothing until the hero completes, the mobile lockup gap) taken as decisions
   17 and 18. Confirmed by the same critic: first paint reads as a fade-in, the lockup is optically
   centred at both widths, the settled page is identical to `main` except the wordmark's box.
+- Round 4 (same fresh critic, verification, on its own re-shoot and a timeline-locked probe): 9/10,
+  SATISFIED, no blockers. Greeting at zero 50 ms before the boxes touch on desktop and 30 ms on
+  phones; opacity times overlap 0 at every step; the sweep proven to catch the regression. Nothing
+  on the round-3 list regressed. Nice-to-haves taken: `tools/intro_check.py` exits 1 on any failed
+  check, and the phone-margin guard is written into decision 16.

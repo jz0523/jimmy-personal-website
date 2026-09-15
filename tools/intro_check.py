@@ -11,7 +11,7 @@ Usage: python tools/intro_check.py [out_dir]
 Requires the dev server on http://localhost:5199. Writes <out_dir>/<name>-landing.png: the nav corner at 3x,
 the frame before the swap above the frame after it. Prints the worst greeting overlap, the seam values and
 the box offsets in px; a non-zero overlap score, a cover with alpha, a line still at or below 100%, or an
-offset over 1 px is a defect.
+offset over 1 px is a defect, and the script exits 1 so it can gate a commit.
 """
 import asyncio
 import sys
@@ -58,21 +58,33 @@ MEASURE = """() => {
 }"""
 
 
+FAILURES = []
+
+
 async def run(browser, name, w, h):
     mobile = name == "mobile"
     ctx = await browser.new_context(viewport={"width": w, "height": h}, device_scale_factor=3, is_mobile=mobile, has_touch=mobile)
     page = await ctx.new_page()
     await page.goto("http://localhost:5199/", wait_until="load")
     await page.wait_for_function("window.__intro && window.__intro.time() > 0.2")
-    print(name, "greeting worst overlap:", await page.evaluate(SWEEP))
+    sweep = await page.evaluate(SWEEP)
+    print(name, "greeting worst overlap:", sweep)
+    if sweep["score"] > 0:
+        FAILURES.append(f"{name}: the name flies through the visible greeting (score {sweep['score']})")
     seam = await page.evaluate(SEAM)
     await page.wait_for_timeout(400)  # the hero runs in real time once its play() has fired; its line tween begins at 0.1 s
     seam["lineRisePct"] = await page.evaluate("""() => { const line = document.querySelector('.hero .line-inner');
       const m = new DOMMatrixReadOnly(getComputedStyle(line).transform);
       return Math.round(100 - (m.m42 / line.getBoundingClientRect().height) * 100); }""")
     print(name, "seam:", seam)
+    if seam["cover"] != "rgba(0, 0, 0, 0)":
+        FAILURES.append(f"{name}: the cover paints a background mid-flight ({seam['cover']})")
+    if seam["lineRisePct"] <= 0:
+        FAILURES.append(f"{name}: the headline is not rising mid-flight ({seam['lineRisePct']}%)")
     m = await page.evaluate(MEASURE)
     print(name, {k: (round(v, 2) if isinstance(v, float) else v) for k, v in m.items()})
+    if max(abs(m[k]) for k in ("dl", "dt", "dw", "dh")) > 1:
+        FAILURES.append(f"{name}: the landing is off by more than 1 px")
     clip = {"x": 0, "y": 0, "width": min(w, 360), "height": 64}
     await page.screenshot(path=f"{OUT}/{name}-before.png", clip=clip)
     await page.evaluate("window.__intro.time(window.__intro.labels.flight + 0.8 + 0.001)")
@@ -93,6 +105,10 @@ async def main():
         await run(browser, "desktop", 1440, 900)
         await run(browser, "mobile", 390, 844)
         await browser.close()
+    if FAILURES:
+        print("FAILED:", *FAILURES, sep="\n  ")
+        sys.exit(1)
+    print("all checks passed")
 
 
 asyncio.run(main())
