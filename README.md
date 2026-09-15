@@ -22,13 +22,17 @@ npm run preview    # serves dist/ locally
 | `index.html` | All content. Edit copy here. |
 | `src/styles.css` | Design tokens and layout. One light theme, one accent (`--accent`). |
 | `src/main.ts` | Lenis, GSAP timelines, hero photo cascade, sticky-stack, horizontal gallery, award seals, toolbox wall, mobile menu. |
+| `src/intro.ts` | The opening: a greeting and the name on the paper, the name travels to its seat as the nav wordmark while the hero entrance starts. Once per session, never on a deep link or under reduced motion. The gate is the inline script in `index.html`. |
 | `src/field.ts` | The WebGL point field behind the contact section (removed silently without WebGL). |
 | `src/figures.ts` | The five 3D figurines: one shared, fixed WebGL canvas drawing into `.figure` slots, scroll-turn, pointer look, click spin, clipped plinths, VSM contact shadows. Loaded as its own chunk. |
 | `public/models/` | The optimized figurine GLBs (1K WebP textures, meshopt). The raw Tripo exports stay in `Model GLB/`, which is gitignored. |
 | `tools/shoot.py` | Playwright screenshots of every figurine slot at 1440x900 and 390x844 (needs the dev server on port 5199). |
 | `tools/profile.py` | Pixel gate for the figurines: no shadow may be cut at a slot's edge or at the render margin (reads the rects `shoot.py` writes). |
 | `tools/interact.py` | Drives the hero figurine with mouse moves, a click and a scroll, and clips six frames to review the motion. |
+| `tools/intro_shoot.py` | Frames of the opening at 1440x900 and 390x844, tiled into a sheet, plus the revisit, reduced-motion and deep-link cases (needs the dev server on port 5199). |
+| `tools/intro_check.py` | Landing precision for the opening: pauses the timeline on the last frame of the flight and measures the name's box against the wordmark's. |
 | `docs/critic-brief.md` | The running brief and decision log for design-critic rounds on the figurines. |
+| `docs/intro-critic-brief.md` | The same for the opening animation. |
 | `src/fonts.css`, `src/fonts/` | Self-hosted Bricolage Grotesque, Geist, Geist Mono (latin subsets). |
 | `public/images/` | Project screenshots pulled from the GitHub repos. |
 | `public/images/me/` | Personal photos, resized and stripped of EXIF/GPS. Source: the "personal info" folder on the Desktop. |
@@ -50,5 +54,6 @@ npm run preview    # serves dist/ locally
 - Photos sit in white "print" frames; only the frame tilts, captions stay level and say what is actually happening.
 - Radius system: pills for interactive elements, 16px for containers and photo frames, 6px for chips.
 - No em-dashes or en-dashes anywhere in visible text.
-- Motion is gated on `prefers-reduced-motion`; the point field renders one static frame under it, and the figurines hold still.
+- Motion is gated on `prefers-reduced-motion`; the point field renders one static frame under it, the figurines hold still, and the opening does not play.
+- The opening is on the same paper as the page: no panel, no wipe, no counter. Its one element, the name, becomes the nav wordmark; the hero entrance starts while it is still in flight.
 - The figurines are objects on the page, not features: no captions, no labels, no panels behind them, plinths clipped away, one light direction, the same rendered head size everywhere. Sections without room for one (Experience, Off the clock, Toolbox) get none.

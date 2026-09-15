@@ -12,9 +12,24 @@
     <meta name="theme-color" content="#f4f4f1" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/src/styles.css" />
-    <script>document.documentElement.classList.replace('no-js', 'js');</script>
+    <script>
+      (function (h) {
+        h.classList.replace('no-js', 'js');
+        // The opening plays once per session, never on a deep link, never under reduced motion.
+        var seen = false;
+        try { seen = !!sessionStorage.getItem('jz-intro'); } catch (e) {}
+        var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        h.classList.add(seen || still || location.hash ? 'no-intro' : 'intro-active');
+      })(document.documentElement);
+    </script>
   </head>
   <body>
+    <div class="intro" id="intro" aria-hidden="true">
+      <div class="intro-stack">
+        <p class="intro-greet">Hello, I'm</p>
+        <p class="intro-name"><span class="intro-name-inner">Jimmy Zhong</span></p>
+      </div>
+    </div>
     <div class="grain" aria-hidden="true"></div>
 
     <header class="nav" id="nav">

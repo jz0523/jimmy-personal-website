@@ -280,6 +280,8 @@ button {
   gap: 32px;
 }
 .wordmark {
+  display: inline-block;
+  line-height: 1; /* one em tall, so the opening's flyer can measure and match it exactly */
   font-family: var(--font-display);
   font-variation-settings: "opsz" 24;
   font-weight: 600;
@@ -1653,5 +1655,62 @@ html.no-figures .figure,
     width: 185px;
     margin-top: 12px;
     margin-bottom: 0;
+  }
+}
+
+/* ---------- Opening: a greeting on the paper, then the name takes its seat in the nav (src/intro.ts) ---------- */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 55; /* over the page and the figures canvas (50), under the grain (60) */
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  background: var(--bg);
+}
+html.no-js .intro,
+html.no-intro .intro {
+  display: none;
+}
+html.intro-active .nav {
+  visibility: hidden; /* the wordmark's first frame is the one the name lands on */
+}
+.intro-stack {
+  text-align: center;
+}
+.intro-greet {
+  margin-bottom: 18px;
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  letter-spacing: 0.01em;
+  color: var(--text-2);
+}
+/* The mask keeps its height when the flyer leaves the flow, so the greeting does not jump */
+.intro-name {
+  height: 1.08em;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 96;
+  font-weight: 500;
+  font-size: clamp(2.7rem, 5.6vw, 5.2rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+.intro-name-inner {
+  display: inline-block;
+  line-height: 1;
+}
+html.js .intro-greet,
+html.js .intro-name-inner {
+  visibility: hidden; /* the timeline shows them, so nothing flashes before it starts */
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro {
+    display: none;
+  }
+  html.intro-active .nav {
+    visibility: visible;
   }
 }

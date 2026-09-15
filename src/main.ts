@@ -32,6 +32,7 @@ import {
   siBlender,
 } from "simple-icons";
 import { mountField } from "./field";
+import { playOpening } from "./intro";
 import { inject } from "@vercel/analytics";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -121,9 +122,10 @@ function setHeadline(i: number) {
 let headlineIndex = 0;
 let headlineTimer: gsap.core.Tween | null = null;
 let heroInView = true;
+let heroEntered = false; // the rotation waits for the entrance (and, on a first visit, the opening before it)
 function scheduleHeadline(delay = 4) {
   headlineTimer?.kill();
-  if (prefersReduced || lineInners.length < 2) return;
+  if (prefersReduced || lineInners.length < 2 || !heroEntered) return;
   headlineTimer = gsap.delayedCall(delay, swapHeadline);
 }
 function swapHeadline() {
@@ -153,7 +155,8 @@ if (!prefersReduced && lineInners.length === 2) {
   ).observe(document.querySelector(".hero .h1")!);
 }
 
-/* ---------- Hero entrance: name -> claim -> proof -> action -> the person. Waits for the display font. ---------- */
+/* ---------- Hero entrance: name -> claim -> proof -> action -> the person. Waits for the display font,
+   and on a first visit for the opening (src/intro.ts), which starts it while the name is still in flight. ---------- */
 if (prefersReduced) {
   gsap.set(".hero-anim", { visibility: "visible" });
 } else {
@@ -164,7 +167,10 @@ if (prefersReduced) {
   const tl = gsap.timeline({
     paused: true,
     defaults: { ease: "power4.out" },
-    onComplete: () => scheduleHeadline(3.2),
+    onComplete: () => {
+      heroEntered = true;
+      scheduleHeadline(3.2);
+    },
   });
   tl.from(".hero .eyebrow", { y: 14, opacity: 0, duration: 0.8 }, 0.05)
     .from(".hero .line-inner", { yPercent: 112, duration: 1.25, stagger: 0.1 }, 0.1)
@@ -180,7 +186,7 @@ if (prefersReduced) {
     );
   });
   gsap.set(".hero-anim", { visibility: "visible" });
-  fontsReady.then(() => tl.play());
+  playOpening(tl, fontsReady, lenis);
 }
 
 /* ---------- Hero depth: prints drift a few pixels with the pointer, back layers more than front ---------- */

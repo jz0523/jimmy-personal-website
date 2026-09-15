@@ -390,7 +390,7 @@ export function mountFigures(opts: { reduced: boolean; finePointer: boolean }): 
         }
         continue;
       }
-      if (!s.introPlayed) playIntro(s);
+      if (!s.introPlayed && !document.documentElement.classList.contains("intro-active")) playIntro(s);
 
       const lookK = s.spec.look ?? 1;
       if (px >= 0) {
