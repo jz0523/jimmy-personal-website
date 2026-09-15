@@ -92,6 +92,15 @@ a deep link.
     before the eyebrow begins to fade in.
 12. The greeting is 0.95 rem with 22 px below it (was 0.86 rem, 18 px), so it reads as one lockup with
     the name instead of a whisper above it.
+13. The remaining hold of about 0.45 s (two to three zero-change frames at 150 ms, from the name's
+    settling to the flight's first visible motion) is the reading beat, accepted in round 2. The
+    greeting is legible from about 0.3 s and the name from about 0.45 s after the opening starts.
+14. On mobile the shrinking flyer crosses the eyebrow's line at about flight + 0.52 s with the eyebrow
+    at or below 0.14 opacity; on desktop the two never intersect. Accepted as invisible in round 2.
+15. GSAP lag smoothing is on for the duration of the opening (500 ms threshold, 33 ms adjusted) and
+    off again at the landing, as `main.ts` sets it for Lenis. Scrolling is held throughout, so there
+    is nothing to desynchronise, and a long frame (one headless run in four showed a 550 ms shader
+    compile while the first figurine model landed) pauses the flight instead of jumping the name.
 
 Append new decisions here at the end of every round, with the measurement or reason.
 
@@ -136,3 +145,11 @@ without the opening. "It feels slow" is not actionable; "the name holds still fr
   SATISFIED. Blockers: the hero entrance ran behind the paper-coloured cover and hard-cut in at the
   landing; a 0.6 to 0.75 s static hold. Both addressed in decisions 10 and 11; the nice-to-haves
   (greeting size, a seam check in the tool) taken as decision 12 and in `tools/intro_check.py`.
+- Round 2 (same critic, verification, on its own video re-shoot and two timeline-locked probes):
+  8/10, SATISFIED, no blockers. Blocker 1 verified: cover transparent at every sampled flight time,
+  line 1 63% risen and eyebrow at 0.90 on the landing frame, changed-pixel counts across the
+  handoff a continuous ramp (66k, 121k, 167k, 136k, 71k) instead of a zero then a 184k spike.
+  Blocker 2 verified: hold down to about 0.45 s, accepted as the reading beat (decision 13). The
+  graze at flight + 0.45 measured clean on desktop and invisible on mobile (decision 14). One
+  nice-to-have taken as decision 15 (lag smoothing during the opening); the other (flight label
+  0.95 instead of 1.05) declined, the beat is the reading time.

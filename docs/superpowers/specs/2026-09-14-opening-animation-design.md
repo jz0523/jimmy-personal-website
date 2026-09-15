@@ -137,6 +137,10 @@ skipped, the visitor just gets there sooner.
 - `main`, the nav and the mobile menu are `inert` while the cover is up. Scrolling is held with
   `lenis.stop()` and released on landing. Without Lenis (reduced motion) the opening does not play,
   so there is no second path to maintain.
+- GSAP lag smoothing, which `main.ts` turns off so Lenis and ScrollTrigger stay in step, is on for
+  the duration of the opening and off again at the landing. Scrolling is held, so nothing can
+  desynchronise, and a long frame (a shader compile when the first figurine model lands, a decode)
+  pauses the flight for that frame instead of jumping the name most of the way to the nav.
 - Nothing waits on images or models. The overlay is text on a colour, so the largest contentful
   paint is the name and happens as soon as the font is ready.
 - Layout: the overlay is `position: fixed`, so it causes no shift when removed. The mask keeps a

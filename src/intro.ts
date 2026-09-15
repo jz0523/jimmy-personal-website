@@ -39,6 +39,10 @@ export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknow
   const covered = Array.from(document.querySelectorAll<HTMLElement>("main, #nav, #menu"));
   covered.forEach((el) => (el.inert = true));
   lenis?.stop();
+  // main.ts turns lag smoothing off so Lenis and ScrollTrigger stay in step. Scrolling is held for the
+  // whole opening, so it can be on here: a long frame (a shader compile, a decode) pauses the flight
+  // for that frame instead of jumping the name most of the way to the nav.
+  gsap.ticker.lagSmoothing(500, 33);
 
   // Measured when the flight begins, so the landing is exact at whatever size the viewport is then.
   let dx = 0;
@@ -60,6 +64,7 @@ export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknow
     html.classList.remove("intro-active");
     root!.remove();
     covered.forEach((el) => (el.inert = false));
+    gsap.ticker.lagSmoothing(0);
     gsap.fromTo(navRest, { y: 8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out", stagger: 0.05, clearProps: "all" });
     lenis?.start();
   }
