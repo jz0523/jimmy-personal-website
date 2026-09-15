@@ -69,14 +69,36 @@ Times are seconds after the display font is ready (the existing hero entrance al
 | --- | --- | --- |
 | 0.00 | The greeting "Hello, I'm" fades up. | y 12 to 0, opacity 0 to 1, 0.45 s, `power3.out`. Geist Mono at 0.95 rem, sentence case, `--text-2`, `clamp(14px, 1.6vw, 22px)` above the name. Not an eyebrow: the page keeps its one-eyebrow rule. |
 | 0.05 | The name "Jimmy Zhong" rises out of a line mask. | `yPercent` 112 to 0, 0.8 s, `power4.out`, the same mask mechanics as the hero headline. Bricolage Grotesque, opsz 96, weight 500, the `h1` size. |
-| 0.85 | A beat. | Nothing moves for 0.2 s (the ease has the name visually settled well before 0.85, so the read time is closer to half a second). |
-| 0.87 | The greeting settles down and out, gone before the rising name reaches its line. | y 0 to 8, opacity 1 to 0, 0.3 s, `power2.in`. The flyer's box first touches the greeting's line 0.17 s into the flight on phones and 0.2 s on desktop; the greeting is at zero 0.12 s in. |
-| 1.05 | The name travels to the nav wordmark's slot. | A hand-computed fit (see below), 0.8 s, `power2.inOut` (motion visible in the first frames). |
-| 1.50 | The hero entrance starts while the name is still in flight, in view. By now the shrinking flyer is above the eyebrow's line, so the two never overlap. | The existing hero timeline `play()`s here, so the eyebrow and headline rise into the centre as the name leaves it. |
-| 1.85 | The name lands. On that frame it is swapped for the real wordmark, the nav links and menu button fade in, the cover is removed, `inert` and scrolling are released. | `autoAlpha` swap; nav children y 8 to 0, opacity 0 to 1, 0.5 s, stagger 0.05; `lenis.start()`; `html.intro-active` removed. |
-| 1.85 onward | The hero entrance continues as it does today: sub, buttons, prints landing back to front, the greeter figurine popping in 0.9 s after its model is on screen. | Unchanged. |
+| 0.45 | A hairline frame draws itself clockwise around the lockup, starting at the top left, as the name finishes rising. | `strokeDashoffset` from the perimeter to 0, 0.5 s, `power2.inOut`. See "The frame" below. |
+| 0.95 | The frame is shut. The one still moment of the opening: a name on a plate. | 0.22 s. |
+| 1.17 | The frame retraces the way it came, counterclockwise, and is gone as the flight begins. | `strokeDashoffset` back to the perimeter, 0.28 s, `power2.in`. |
+| 1.27 | The greeting settles down and out, gone before the rising name reaches its line. | y 0 to 8, opacity 1 to 0, 0.3 s, `power2.in`. The flyer's box first touches the greeting's line 0.17 s into the flight on phones and 0.2 s on desktop; the greeting is at zero 0.12 s in. |
+| 1.45 | The name travels to the nav wordmark's slot. | A hand-computed fit (see below), 0.8 s, `power2.inOut` (motion visible in the first frames). |
+| 1.90 | The hero entrance starts while the name is still in flight, in view. By now the shrinking flyer is above the eyebrow's line, so the two never overlap. | The existing hero timeline `play()`s here, so the eyebrow and headline rise into the centre as the name leaves it. |
+| 2.25 | The name lands. On that frame it is swapped for the real wordmark, the nav links and menu button fade in, the cover is removed, `inert` and scrolling are released. | `autoAlpha` swap; nav children y 8 to 0, opacity 0 to 1, 0.5 s, stagger 0.05; `lenis.start()`; `html.intro-active` removed. |
+| 2.25 onward | The hero entrance continues as it does today: sub, buttons, prints landing back to front, the greeter figurine popping in 0.9 s after its model is on screen. | Unchanged. |
 
-Under two seconds from font-ready to handoff, about three to a settled hero.
+About 2.25 s from font-ready to handoff, three and a half to a settled hero. Without the frame it was
+1.85 s; the owner asked for the decoration on 2026-09-15 knowing it costs time, and the stillness did
+not grow with it, since the frame is moving through most of what used to be the reading beat.
+
+### The frame
+
+An `svg` with one `rect`, absolutely positioned around the lockup and sized with explicit width and
+height (an `svg` is a replaced element, so `inset` alone leaves it at its 300 by 150 intrinsic size
+and a runtime `viewBox` then stretches it to that ratio). Once the display font is ready the box is
+measured, the `viewBox` is set to its pixel size so one user unit is one pixel, and the rect is
+inset by half the stroke so the hairline sits inside the box.
+
+A rect's own path starts just right of its top left corner and runs clockwise, so the whole gesture
+is one property: `stroke-dasharray` is the perimeter, `stroke-dashoffset` goes from the perimeter to
+0 to draw it, and back to the perimeter to retrace it. Putting the offset back walks the pen
+backwards along the path it drew, which is the reverse the owner asked for, rather than a second lap.
+The perimeter comes from `getTotalLength()`, with the rounded rectangle's own arithmetic as the
+fallback for engines that only implement it on paths.
+
+It is 1.5 px of ink at 0.26 alpha with the site's 16 px container radius. No accent colour: the
+accent is spent on the hero headline seconds later.
 
 ### The fit
 
@@ -154,8 +176,8 @@ skipped, the visitor just gets there sooner.
 
 ## Files
 
-- `index.html`: the overlay markup as the first child of `body` (greeting, masked name), and the
-  session, deep-link and reduced-motion gate in the existing inline head script.
+- `index.html`: the overlay markup as the first child of `body` (the frame's svg, greeting, masked
+  name), and the session, deep-link and reduced-motion gate in the existing inline head script.
 - `src/styles.css`: the wordmark measures as one em; an "Opening" block at the end (overlay,
   greeting, name mask, nav hidden while active, reduced-motion and no-intro rules).
 - `src/intro.ts`: `playOpening(hero, fontsReady, lenis)` builds and runs the timeline and resolves
@@ -166,10 +188,13 @@ skipped, the visitor just gets there sooner.
 - `tools/intro_shoot.py`: a video recording of the opening at 1440x900 and 390x844 cut into frames
   every 150 ms (screenshots stall the page, and with GSAP's lag smoothing off the animation jumps
   between them), tiled, plus the revisit, reduced-motion and deep-link cases.
-- `tools/intro_check.py`: the greeting's exit (a 1/60 s sweep of the first 0.4 s of the flight,
-  worst opacity times overlap must be 0), the seam (cover transparent and the headline rising
-  mid-flight), landing precision (box offsets on the last frame of the flight) and a 3x crop of the
-  swap.
+- `tools/intro_check.py`: the frame (fully drawn at its label, fully retraced when the flight
+  begins), the greeting's exit (a 1/60 s sweep of the first 0.4 s of the flight, worst opacity times
+  overlap must be 0), the seam (cover transparent and the headline rising mid-flight), landing
+  precision (box offsets on the last frame of the flight) and a 3x crop of the swap. Exits 1 on any
+  failure.
+- `tools/intro_frame.py`: the frame at six exact points of its draw and retrace, by pausing and
+  seeking the timeline rather than sampling a recording.
 - `docs/intro-critic-brief.md`: the brief for the critic rounds.
 - `README.md`: the new tools and file.
 
@@ -181,8 +206,10 @@ skipped, the visitor just gets there sooner.
   after landing, and the settled hero identical to `main`. The revisit, reduced-motion and deep-link
   shots show no cover. After the opening, `html` carries neither `intro-active` nor `lenis-stopped`
   and its overflow is visible.
-- `python tools/intro_check.py shots/intro-v` reports a greeting overlap score of 0, a transparent
-  cover with the first headline line rising mid-flight, and box offsets of 0 px at the landing, at
-  both viewports.
+- `python tools/intro_check.py shots/intro-v` reports a frame that is shut at its label and fully
+  retraced at the flight, a greeting overlap score of 0, a transparent cover with the first headline
+  line rising mid-flight, and box offsets of 0 px at the landing, at both viewports, and exits 0.
+- `python tools/intro_frame.py shots/frame` shows the frame drawing clockwise from the top left,
+  shut around the lockup, retracing counterclockwise, and absent when the flight begins.
 - A critic agent reviews the frame sheets against `docs/intro-critic-brief.md`; the loop runs until
   it scores 8 or above with no blocking issue.

@@ -22,20 +22,24 @@ The design (full spec: `docs/superpowers/specs/2026-09-14-opening-animation-desi
 1. First paint is the empty paper sheet. The nav is hidden.
 2. A greeting, "Hello, I'm", fades up in Geist Mono (sentence case, grey), and the name "Jimmy
    Zhong" rises out of a line mask in Bricolage Grotesque at the headline size, centred.
-3. A beat.
-4. The name travels to the nav wordmark's slot in the top-left corner, shrinking as it goes, while
+3. A hairline rounded rectangle draws itself clockwise around the two of them, from the top left,
+   and closes. The lockup sits inside it like a name on a plate.
+4. The frame holds shut for a beat, then retraces the way it came, counterclockwise, and is gone.
+5. The name travels to the nav wordmark's slot in the top-left corner, shrinking as it goes, while
    the greeting settles out. Its font axes tween from the headline's setting to the wordmark's, so
    the frame it lands on is pixel-identical to the real wordmark, which replaces it on that frame.
-5. While the name is still in flight, the existing hero entrance starts: the eyebrow and headline
+6. While the name is still in flight, the existing hero entrance starts: the eyebrow and headline
    rise into the centre the name is leaving.
-6. On landing the nav links fade in, scrolling is released, the overlay is removed.
+7. On landing the nav links fade in, scrolling is released, the overlay is removed.
 
 There is no curtain, no wipe, no colour panel, no counter, no progress bar. The cover has no
 background of its own: the page under it is blank paper until the hero entrance plays, so the
 headline is seen rising while the name is still in flight, and nothing changes colour at any point.
 
-Timing from the moment the display font is ready: greeting 0 to 0.45 s, name 0.05 to 0.85 s, beat,
-flight 1.05 to 1.85 s, hero entrance from 1.5 s. Under two seconds to handoff.
+Timing from the moment the display font is ready: greeting 0 to 0.45 s, name 0.05 to 0.85 s, frame
+drawing 0.45 to 0.95 s, closed 0.95 to 1.17 s, retracing 1.17 to 1.45 s, flight 1.45 to 2.25 s, hero
+entrance from 1.90 s. About 2.25 s to handoff, up from 1.85 s before the frame; the owner asked for
+the decoration knowing it costs time, so judge the pacing, not the total against the old number.
 
 Judge, in this order: (a) does it read as a welcome and match the quiet editorial theme, (b) is it
 restrained enough (the owner's words: "should not be super exaggerated"), (c) is the handoff into
@@ -52,6 +56,10 @@ a deep link.
 - `shots/intro-v/desktop-landing.png`, `shots/intro-v/mobile-landing.png`: the nav corner at 3x,
   the last frame of the flight above the first frame after the swap. They should be
   indistinguishable.
+- `shots/frame/desktop-frame-sheet.png` and `shots/frame/mobile-frame-sheet.png`: the frame at six
+  exact points of its draw and retrace (the timeline is paused and seeked, so these are states, not
+  samples), cropped to the lockup and enlarged. `shots/frame/<viewport>-full-closed.png` is the
+  closed frame on the whole sheet.
 - `shots/intro-v/desktop-revisit.png`, `-reduced.png`, `-hash.png` (and the mobile set): a reload
   in the same session, a reduced-motion visitor, a deep link to `/#work`. None may show the cover.
 - Source, read-only: `index.html` (the `#intro` block and the inline head script that decides
@@ -112,6 +120,20 @@ a deep link.
     greeting at zero at + 0.12 s, the text boxes touching at + 0.15 s). Tightening the phone gap
     below 14 px or shortening the 0.18 s lead brings the collision back; do not trade one for the
     other. Round 4 confirmed the sweep reports it (score about 1100 to 1200) if the lead is removed.
+19. The decoration the owner asked for on 2026-09-15 is a hairline rounded rectangle, not a circle,
+    a glow or a fill: a 1.5 px stroke in ink at 0.26 alpha with the site's 16 px container radius,
+    18 to 34 px of horizontal padding and 15 to 26 px of vertical padding around the lockup. It reads
+    as a name on a plate, which is what the page is: an introduction. No accent colour, since the
+    accent is spent on the hero headline seconds later.
+20. It draws clockwise from the top left over 0.5 s (`power2.inOut`), holds shut for 0.22 s, and
+    retraces counterclockwise over 0.28 s (`power2.in`), ending exactly as the flight begins. The
+    retrace is the draw undone, not a second lap: the rect's own path is stroked with one dash
+    offset, so putting the offset back walks the pen backwards.
+21. The svg is sized with explicit width and height, not `inset`. An svg is a replaced element, so
+    insets alone leave it at its 300 by 150 intrinsic size and the runtime `viewBox` then stretches
+    it to that ratio; the first build drew a 489 by 244 frame around a 489 by 184 lockup.
+
+Append new decisions here at the end of every round, with the measurement or reason.
 17. The wordmark's hit area is a pseudo-element 8 px above and below and 6 px either side of the
     one-em box (which the flyer measures and which stays as it is), so the home link's target is back
     above 24 px tall after decision 3 shrank its box from 27 to 17 px.
@@ -124,6 +146,9 @@ Append new decisions here at the end of every round, with the measurement or rea
 
 ## 4. Known tool limitations (do not report these as defects)
 
+- `tools/intro_frame.py` pauses and seeks the timeline instead of sampling a recording, so its six
+  frames are exact. It captures at device scale 1 and enlarges: at device scale 2 the page's two
+  WebGL canvases stall headless Chromium for minutes under software GL.
 - Frames are cut from a screencast recording of headless Chromium (`tools/intro_shoot.py`), so they
   do not stall the page, but the screencast emits frames irregularly and a cut frame can repeat the
   previous one by up to about 100 ms. Treat any single-frame oddity as suspect and look at its

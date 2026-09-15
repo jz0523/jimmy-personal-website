@@ -1684,7 +1684,29 @@ html.intro-active .nav {
   visibility: hidden; /* the wordmark's first frame is the one the name lands on */
 }
 .intro-stack {
+  position: relative;
   text-align: center;
+}
+/* A hairline frame draws itself around the lockup, then retraces before the name leaves.
+   Its geometry is measured and set by the timeline; until then it is hidden. */
+.intro-frame {
+  --frame-x: clamp(18px, 2.4vw, 34px);
+  --frame-y: clamp(15px, 1.8vw, 26px);
+  position: absolute;
+  /* An svg is a replaced element: insets alone leave it at its 300x150 intrinsic size and the
+     viewBox then stretches it to that ratio. Explicit width and height size it exactly. */
+  left: calc(-1 * var(--frame-x));
+  top: calc(-1 * var(--frame-y));
+  width: calc(100% + 2 * var(--frame-x));
+  height: calc(100% + 2 * var(--frame-y));
+  overflow: visible;
+  pointer-events: none;
+  visibility: hidden;
+}
+.intro-frame rect {
+  fill: none;
+  stroke: rgba(22, 23, 28, 0.26);
+  stroke-width: 1.5;
 }
 .intro-greet {
   margin-bottom: clamp(14px, 1.6vw, 22px); /* the name halves on phones; the gap follows it */

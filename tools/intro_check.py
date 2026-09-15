@@ -1,5 +1,7 @@
-"""Three checks on the opening, at both viewports.
+"""Four checks on the opening, at both viewports.
 
+0. The frame: it must be fully drawn at its own label and fully retraced when the flight begins, so
+   the decoration never overlaps the name's journey to the nav.
 1. The greeting's exit: stepping the timeline from the flight's start to 0.4 s in at 1/60 s, the
    greeting must have zero opacity whenever its box and the flyer's box intersect (the name must not
    fly through visible text). Reports the worst step as opacity x overlap area.
@@ -21,6 +23,19 @@ from playwright.async_api import async_playwright
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "shots"
 ARGS = ["--use-angle=default", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-unsafe-swiftshader"]
+FRAME = """() => {
+  const tl = window.__intro; tl.pause();
+  const r = document.querySelector('.intro-frame rect');
+  const read = () => {
+    const cs = getComputedStyle(r);
+    const arr = parseFloat(cs.strokeDasharray) || 0, off = parseFloat(cs.strokeDashoffset) || 0;
+    return { perimeter: Math.round(arr), drawn: Math.round(arr - off) };
+  };
+  tl.time(tl.labels.framed);
+  const closed = read();
+  tl.time(tl.labels.flight);
+  return { closed, atFlight: read() };
+}"""
 SWEEP = """() => {
   const tl = window.__intro; tl.pause();
   const g = document.querySelector('.intro-greet'), n = document.querySelector('.intro-name-inner');
@@ -67,6 +82,12 @@ async def run(browser, name, w, h):
     page = await ctx.new_page()
     await page.goto("http://localhost:5199/", wait_until="load")
     await page.wait_for_function("window.__intro && window.__intro.time() > 0.2")
+    frame = await page.evaluate(FRAME)
+    print(name, "frame:", frame)
+    if frame["closed"]["drawn"] < frame["closed"]["perimeter"] - 1:
+        FAILURES.append(f"{name}: the frame is not closed at its label ({frame['closed']})")
+    if frame["atFlight"]["drawn"] > 1:
+        FAILURES.append(f"{name}: the frame has not retraced when the flight begins ({frame['atFlight']})")
     sweep = await page.evaluate(SWEEP)
     print(name, "greeting worst overlap:", sweep)
     if sweep["score"] > 0:

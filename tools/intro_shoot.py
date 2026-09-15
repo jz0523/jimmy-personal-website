@@ -31,7 +31,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else "shots"
 WHICH = sys.argv[2] if len(sys.argv) > 2 else "both"
 VIEWPORTS = {"desktop": (1440, 900), "mobile": (390, 844)}
 STEP_MS = 150
-SPAN_MS = 4500
+SPAN_MS = 5100  # the opening lands about 2.9 s in on the dev server; the hero settles about 1.2 s later
 ARGS = ["--use-angle=default", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-unsafe-swiftshader"]
 
 

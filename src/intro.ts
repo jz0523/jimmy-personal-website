@@ -5,6 +5,9 @@
   no background of its own; the page under it is blank paper until the hero entrance plays, which
   starts while the name is still in flight, in view.
 
+  One piece of decoration: a hairline frame draws itself clockwise around the lockup while the name
+  is read, holds closed for a beat, then retraces counterclockwise and is gone before the flight.
+
   The inline script in the head decides whether it plays (html.intro-active) or not (html.no-intro:
   seen this session, deep link, reduced motion, no JS). Either way the hero entrance ends up playing.
 */
@@ -14,16 +17,25 @@ import type Lenis from "lenis";
 const KEY = "jz-intro";
 const FLIGHT = 0.8; // seconds the name is in the air
 const HERO_AT = 0.45; // seconds into the flight when the hero entrance starts; by then the flyer is above the eyebrow's line
+// The frame: it starts as the name finishes rising, and the flight begins on the frame's last frame.
+const FRAME_AT = 0.45;
+const DRAW = 0.5;
+const CLOSED = 0.22; // the one still moment: a closed frame around the name
+const UNDRAW = 0.28; // retracing is an exit, so it is quicker than the draw
+const FLIGHT_AT = FRAME_AT + DRAW + CLOSED + UNDRAW;
+const RADIUS = 16; // the site's container radius
 
 export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknown>, lenis: Lenis | null): void {
   const html = document.documentElement;
   const root = document.getElementById("intro");
   const greet = root?.querySelector<HTMLElement>(".intro-greet");
+  const frame = root?.querySelector<SVGSVGElement>(".intro-frame");
+  const shape = root?.querySelector<SVGRectElement>(".intro-frame rect");
   const mask = root?.querySelector<HTMLElement>(".intro-name");
   const name = root?.querySelector<HTMLElement>(".intro-name-inner");
   const nav = document.getElementById("nav");
   const wordmark = nav?.querySelector<HTMLElement>(".wordmark");
-  if (!html.classList.contains("intro-active") || !root || !greet || !mask || !name || !nav || !wordmark) {
+  if (!html.classList.contains("intro-active") || !root || !greet || !mask || !name || !nav || !wordmark || !frame || !shape) {
     html.classList.remove("intro-active");
     root?.remove();
     fontsReady.then(() => hero.play());
@@ -43,6 +55,33 @@ export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknow
   // whole opening, so it can be on here: a long frame (a shader compile, a decode) pauses the flight
   // for that frame instead of jumping the name most of the way to the nav.
   gsap.ticker.lagSmoothing(500, 33);
+
+  /* The frame is measured once the display font is ready, so it fits the lockup's real size at this
+     viewport. A rect's own path starts just right of its top left corner and runs clockwise, so
+     drawing it out is one dash offset and retracing it is the same offset put back. */
+  let perim = 0;
+  function sizeFrame() {
+    const box = frame!.getBoundingClientRect();
+    const sw = parseFloat(getComputedStyle(shape!).strokeWidth) || 1.5;
+    const w = Math.max(1, box.width - sw);
+    const h = Math.max(1, box.height - sw);
+    const r = Math.min(RADIUS, w / 2, h / 2);
+    frame!.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
+    shape!.setAttribute("x", String(sw / 2));
+    shape!.setAttribute("y", String(sw / 2));
+    shape!.setAttribute("width", String(w));
+    shape!.setAttribute("height", String(h));
+    shape!.setAttribute("rx", String(r));
+    let len = 0;
+    try {
+      len = shape!.getTotalLength(); // SVG 2 on shapes; older engines only have it on paths
+    } catch {
+      len = 0;
+    }
+    perim = len > 1 ? len : 2 * (w - 2 * r) + 2 * (h - 2 * r) + 2 * Math.PI * r;
+    gsap.set(shape!, { strokeDasharray: perim, strokeDashoffset: perim });
+    gsap.set(frame!, { visibility: "visible" });
+  }
 
   // Measured when the flight begins, so the landing is exact at whatever size the viewport is then.
   let dx = 0;
@@ -75,7 +114,13 @@ export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknow
   tl.set([greet, name], { visibility: "visible" }, 0)
     .fromTo(greet, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45 }, 0)
     .fromTo(name, { yPercent: 112 }, { yPercent: 0, duration: 0.8, ease: "power4.out" }, 0.05)
-    .add("flight", 1.05) // the name has settled at 0.85; a beat, then it goes
+    // The frame closes around the lockup, holds, then retraces the way it came.
+    .add("drawing", FRAME_AT)
+    .to(shape, { strokeDashoffset: 0, duration: DRAW, ease: "power2.inOut" }, "drawing")
+    .add("framed", FRAME_AT + DRAW)
+    .add("retrace", `framed+=${CLOSED}`)
+    .to(shape, { strokeDashoffset: () => perim, duration: UNDRAW, ease: "power2.in" }, "retrace")
+    .add("flight", FLIGHT_AT) // the frame's last frame is the flight's first
     // The greeting is gone before the rising flyer reaches its line (their boxes touch 0.17 s into the
     // flight on phones, 0.2 s on desktop; the greeting is at zero 0.12 s in).
     .to(greet, { y: 8, opacity: 0, duration: 0.3, ease: "power2.in" }, "flight-=0.18")
@@ -108,5 +153,8 @@ export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknow
   });
 
   (window as unknown as { __intro?: gsap.core.Timeline }).__intro = tl; // read by tools/intro_check.py
-  fontsReady.then(() => tl.play());
+  fontsReady.then(() => {
+    sizeFrame(); // the font decides the lockup's width, so the frame is sized after it lands
+    tl.play();
+  });
 }
