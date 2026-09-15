@@ -97,6 +97,10 @@ Nothing about it is measured in JavaScript:
   nothing flashes before the timeline reaches it.
 - The stroke straddles the box edge rather than being inset by half its width, which is why the svg
   is `overflow: visible`. At 34 px of padding the half pixel outside is immaterial.
+- `pathLength` on a `rect` is SVG 2 (Chrome 88, Firefox 97, Safari 14). An engine that ignored it
+  would draw about three quarters of the frame and stop, so the opening checks that the attribute
+  was honoured and hides the frame if it was not: that visitor gets the opening without its
+  decoration rather than a broken one.
 
 A rect's own path starts just right of its top left corner and runs clockwise, so the whole gesture
 is one property. Putting the dash offset back walks the pen backwards along the line it drew, which
@@ -106,7 +110,9 @@ velocity and read as the frame being snatched away.
 
 It is 1 px of ink at 0.34 alpha with the site's 16 px container radius, matching the one-pixel rules
 used everywhere else on the page. No accent colour: the accent is spent on the hero headline seconds
-later.
+later. The lockup is centred, so the frame's box lands on a fractional position and the hairline
+shares two device rows at device ratio 1 whatever its width; 1 px at 0.34 puts 74 ink units there
+against a crisp row's 75, so the weight is right even though it has no dark core.
 
 ### The seam
 

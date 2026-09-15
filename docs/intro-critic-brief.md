@@ -57,9 +57,9 @@ a deep link.
   the last frame of the flight above the first frame after the swap. They should be
   indistinguishable.
 - `shots/frame/desktop-frame-sheet.png` and `shots/frame/mobile-frame-sheet.png`: the frame at six
-  exact points of its draw and retrace (the timeline is paused and seeked, so these are states, not
-  samples), cropped to the lockup and enlarged. `shots/frame/<viewport>-full-closed.png` is the
-  closed frame on the whole sheet.
+  points of its draw and retrace, chosen by how much of it is on the page rather than by elapsed
+  time (the timeline is paused and seeked, so these are states, not samples), cropped to the lockup
+  and enlarged. `shots/frame/<viewport>-full-closed.png` is the closed frame on the whole sheet.
 - `shots/intro-v/desktop-revisit.png`, `-reduced.png`, `-hash.png` (and the mobile set): a reload
   in the same session, a reduced-motion visitor, a deep link to `/#work`. None may show the cover.
 - Source, read-only: `index.html` (the `#intro` block and the inline head script that decides
@@ -147,6 +147,17 @@ a deep link.
     `index.html`. All six faces are `font-display: swap` and `document.fonts.ready` waits on all of
     them, so before this the 800 ms timer winning the race was a normal cold-visit outcome and the
     opening started against fallback metrics.
+23. The hairline renders across two device rows at device ratio 1 and that is settled, not a defect
+    to chase. The lockup is centred, so its box lands on a fractional position (top 357.77, left
+    475.56 at 1440 wide) and no geometry change can guarantee a crisp row; insetting the rect again
+    would only move which two rows share the ink. At 1 px and 0.34 alpha the total is 74 units
+    against a crisp row's 75, down from 86 in the first build, so it is quieter and correct in
+    weight; it simply has no dark core. Round 6 measured it and recommended closing the thread.
+24. `pathLength` on a `rect` is SVG 2 (Chrome 88, Firefox 97, Safari 14). If an engine ignored it,
+    a dash array of 1000 against a real perimeter of 1319 would draw about three quarters of the
+    frame and stop, never closing: a silent hard failure. The opening checks that the attribute was
+    honoured and hides the frame if it was not, so such a visitor gets the opening without its
+    decoration rather than a broken one.
 
 Append new decisions here at the end of every round, with the measurement or reason.
 17. The wordmark's hit area is a pseudo-element 8 px above and below and 6 px either side of the
@@ -240,3 +251,12 @@ without the opening. "It feels slow" is not actionable; "the name holds still fr
   the padding, the idea and the restraint, the mechanism being a genuine reverse, the legibility of
   the draw, and that the decoration replaced dead air rather than adding to it, so the added 0.4 s
   earns itself.
+- Round 6 (same fresh critic, verification, on its own velocity sweep, font-swap probe and preload
+  check): 9/10, SATISFIED, no blockers. The retrace's last frame now removes 2.6 px and then nothing,
+  peaking at 166 px mid-retrace against the draw's 123 px at its own midpoint, the two delta
+  sequences the same shape with the retrace compressed 0.72x in time. The font-swap probe took the
+  svg from 489 to 545 px with the rect tracking it exactly, circular corners and a uniform stroke,
+  and confirmed that normalising the dash space deletes the failure class rather than patching it.
+  Mobile padding came out tighter than desktop's at a 1.5 px spread. Three nice-to-haves taken as
+  decisions 23 and 24 and in `tools/intro_frame.py`; the fourth, the hairline sharing two device
+  rows, was measured and closed by the critic itself.

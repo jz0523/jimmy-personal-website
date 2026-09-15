@@ -7,7 +7,8 @@ The six points are chosen by how much of the frame is drawn, not by elapsed time
 accelerating ease cannot hide its worst state between two samples.
 
 Writes <out_dir>/<viewport>-frame-N_<what>.png (the lockup cropped to the frame plus a margin,
-enlarged 2x so the hairline is legible) and <viewport>-frame-sheet.png (the six tiled). The
+enlarged 2x so the hairline is legible), <viewport>-frame-sheet.png (the six tiled) and
+<viewport>-full-closed.png (the closed frame on the whole sheet, for the composition). The
 timeline is paused and seeked, so these are exact states, not samples of a recording. The page is
 captured at device scale 1: at 2 the two WebGL canvases stall for minutes under software GL.
 """
@@ -101,6 +102,10 @@ def run(browser, name, w, h):
         im.resize((im.width * 2, im.height * 2), Image.LANCZOS).save(f)
         files.append(f)
     sheet(files, f"{OUT}/{name}-frame-sheet.png", scale=0.5 if name == "desktop" else 0.8)
+    # The closed frame on the whole sheet, for the composition rather than the gesture.
+    page.evaluate("t => { window.__intro.time(t); }", labels["framed"])
+    page.wait_for_timeout(60)
+    page.screenshot(path=f"{OUT}/{name}-full-closed.png")
     print(
         name, "frame box:", [bw, bh],
         "| draw", round(draw, 3), "s | shut", round(labels["retrace"] - labels["framed"], 3),

@@ -1687,8 +1687,8 @@ html.intro-active .nav {
   position: relative;
   text-align: center;
 }
-/* A hairline frame draws itself around the lockup, then retraces before the name leaves.
-   Its geometry is measured and set by the timeline; until then it is hidden. */
+/* A hairline frame draws itself around the lockup, then retraces before the name leaves. It sizes
+   itself: nothing here is measured or set from JavaScript. */
 .intro-frame {
   --frame-x: clamp(21px, 2.4vw, 34px);
   --frame-y: clamp(15px, 1.8vw, 26px);
@@ -1708,7 +1708,10 @@ html.intro-active .nav {
 .intro-frame rect {
   fill: none;
   stroke: rgba(22, 23, 28, 0.34);
-  stroke-width: 1; /* every other rule on the site is 1px; 1.5 straddled the pixel grid and read soft */
+  /* Every other rule on the site is 1px. The lockup is centred, so the box lands on a fractional
+     position and the stroke shares two device rows whatever its width; 1px at 0.34 puts the right
+     amount of ink there (74 units against a crisp row's 75) where 1.5px at 0.26 put 86. */
+  stroke-width: 1;
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
 }

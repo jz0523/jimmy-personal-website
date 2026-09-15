@@ -48,6 +48,9 @@ export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknow
   } catch {
     /* storage blocked: the opening simply plays on every load */
   }
+  // pathLength on a rect is SVG 2. Without it the dash space is the real perimeter, and a dasharray
+  // of LEN would draw about three quarters of the frame and stop; drop the decoration instead.
+  if (shape.pathLength?.baseVal !== LEN) frame.style.display = "none";
   const navRest = Array.from(nav.querySelectorAll<HTMLElement>(".nav-links a, .menu-btn"));
   // While the cover is up the page is neither focusable nor clickable, and scrolling is held.
   const covered = Array.from(document.querySelectorAll<HTMLElement>("main, #nav, #menu"));
