@@ -1,13 +1,17 @@
-"""Two checks on the opening, at both viewports.
+"""Three checks on the opening, at both viewports.
 
-1. The seam: 0.5 s into the flight the cover must be transparent and the hero's first headline line
+1. The greeting's exit: stepping the timeline from the flight's start to 0.4 s in at 1/60 s, the
+   greeting must have zero opacity whenever its box and the flyer's box intersect (the name must not
+   fly through visible text). Reports the worst step as opacity x overlap area.
+2. The seam: 0.5 s into the flight the cover must be transparent and the hero's first headline line
    must already be rising (translateY under 100% of its height), so the handoff happens in view.
-2. Landing precision: the flyer's box must match the wordmark's on the last frame of the flight.
+3. Landing precision: the flyer's box must match the wordmark's on the last frame of the flight.
 
 Usage: python tools/intro_check.py [out_dir]
 Requires the dev server on http://localhost:5199. Writes <out_dir>/<name>-landing.png: the nav corner at 3x,
-the frame before the swap above the frame after it. Prints the seam values and the box offsets in px; a
-cover with alpha, a line still at or below 100%, or an offset over 1 px is a defect.
+the frame before the swap above the frame after it. Prints the worst greeting overlap, the seam values and
+the box offsets in px; a non-zero overlap score, a cover with alpha, a line still at or below 100%, or an
+offset over 1 px is a defect.
 """
 import asyncio
 import sys
@@ -17,6 +21,22 @@ from playwright.async_api import async_playwright
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "shots"
 ARGS = ["--use-angle=default", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-unsafe-swiftshader"]
+SWEEP = """() => {
+  const tl = window.__intro; tl.pause();
+  const g = document.querySelector('.intro-greet'), n = document.querySelector('.intro-name-inner');
+  let worst = { t: 0, opacity: 0, overlap: 0, score: 0 };
+  for (let i = 0; i <= 24; i++) {
+    const d = i / 60;
+    tl.time(tl.labels.flight + d);
+    const a = g.getBoundingClientRect(), b = n.getBoundingClientRect();
+    const op = parseFloat(getComputedStyle(g).opacity);
+    const dy = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+    const dx = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+    const score = op * dy * dx;
+    if (score > worst.score) worst = { t: +d.toFixed(3), opacity: +op.toFixed(2), overlap: Math.round(dy * dx), score: Math.round(score) };
+  }
+  return worst;
+}"""
 SEAM = """() => {
   const tl = window.__intro; tl.pause();
   tl.time(tl.labels.flight + 0.5); // callbacks fire on the way: prepare() and the hero's play()
@@ -44,6 +64,7 @@ async def run(browser, name, w, h):
     page = await ctx.new_page()
     await page.goto("http://localhost:5199/", wait_until="load")
     await page.wait_for_function("window.__intro && window.__intro.time() > 0.2")
+    print(name, "greeting worst overlap:", await page.evaluate(SWEEP))
     seam = await page.evaluate(SEAM)
     await page.wait_for_timeout(400)  # the hero runs in real time once its play() has fired; its line tween begins at 0.1 s
     seam["lineRisePct"] = await page.evaluate("""() => { const line = document.querySelector('.hero .line-inner');

@@ -64,7 +64,9 @@ export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknow
     html.classList.remove("intro-active");
     root!.remove();
     covered.forEach((el) => (el.inert = false));
-    gsap.ticker.lagSmoothing(0);
+    // Smoothing stays on until the hero has settled: this frame is the busiest of the sequence (the
+    // cover goes, inert lifts, Lenis starts, the nav fades in) and nothing is scroll-linked yet.
+    hero.then(() => gsap.ticker.lagSmoothing(0));
     gsap.fromTo(navRest, { y: 8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out", stagger: 0.05, clearProps: "all" });
     lenis?.start();
   }
@@ -74,7 +76,9 @@ export function playOpening(hero: gsap.core.Timeline, fontsReady: Promise<unknow
     .fromTo(greet, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45 }, 0)
     .fromTo(name, { yPercent: 112 }, { yPercent: 0, duration: 0.8, ease: "power4.out" }, 0.05)
     .add("flight", 1.05) // the name has settled at 0.85; a beat, then it goes
-    .to(greet, { y: 8, opacity: 0, duration: 0.35, ease: "power2.in" }, "flight")
+    // The greeting is gone before the rising flyer reaches its line (their boxes touch 0.17 s into the
+    // flight on phones, 0.2 s on desktop; the greeting is at zero 0.12 s in).
+    .to(greet, { y: 8, opacity: 0, duration: 0.3, ease: "power2.in" }, "flight-=0.18")
     .add(prepare, "flight")
     .to(
       name,

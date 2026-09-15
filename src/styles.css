@@ -280,6 +280,7 @@ button {
   gap: 32px;
 }
 .wordmark {
+  position: relative;
   display: inline-block;
   line-height: 1; /* one em tall, so the opening's flyer can measure and match it exactly */
   font-family: var(--font-display);
@@ -287,6 +288,11 @@ button {
   font-weight: 600;
   letter-spacing: -0.02em;
   font-size: 1.08rem;
+}
+.wordmark::before {
+  content: "";
+  position: absolute;
+  inset: -8px -6px; /* the one-em box is under 24px tall; the hit area is not */
 }
 .nav-links {
   display: flex;
@@ -1681,7 +1687,7 @@ html.intro-active .nav {
   text-align: center;
 }
 .intro-greet {
-  margin-bottom: 22px;
+  margin-bottom: clamp(14px, 1.6vw, 22px); /* the name halves on phones; the gap follows it */
   font-family: var(--font-mono);
   font-size: 0.95rem;
   letter-spacing: 0.01em;

@@ -101,6 +101,21 @@ a deep link.
     off again at the landing, as `main.ts` sets it for Lenis. Scrolling is held throughout, so there
     is nothing to desynchronise, and a long frame (one headless run in four showed a 550 ms shader
     compile while the first figurine model landed) pauses the flight instead of jumping the name.
+16. The greeting's exit starts 0.18 s before the flight and lasts 0.3 s, so it is at zero opacity by
+    flight + 0.12 s. Round 3 measured the flyer's box first touching the greeting's line at
+    flight + 0.20 s on desktop and covering it from + 0.25 to + 0.30 s while the greeting was still at
+    0.64 to 0.37 opacity (its exit used to start on the flight label with `power2.in`): about 100 ms
+    of grey mono text printed over the moving name. With the tighter phone gap of decision 18 the
+    boxes touch at + 0.17 s there, hence the 0.18 s lead rather than the 0.12 s first tried.
+    `tools/intro_check.py` now sweeps the first 0.4 s of the flight at 1/60 s and reports the worst
+    opacity times overlap, which must be 0 at both widths.
+17. The wordmark's hit area is a pseudo-element 8 px above and below and 6 px either side of the
+    one-em box (which the flyer measures and which stays as it is), so the home link's target is back
+    above 24 px tall after decision 3 shrank its box from 27 to 17 px.
+18. Lag smoothing stays on past the landing until the hero entrance completes (about 1.2 s later),
+    since the landing frame is the busiest of the sequence and nothing is scroll-linked before then.
+    The greeting's gap to the name is `clamp(14px, 1.6vw, 22px)`, so the lockup keeps about half an
+    em of the name at both widths instead of loosening to three quarters on phones.
 
 Append new decisions here at the end of every round, with the measurement or reason.
 
@@ -153,3 +168,10 @@ without the opening. "It feels slow" is not actionable; "the name holds still fr
   graze at flight + 0.45 measured clean on desktop and invisible on mobile (decision 14). One
   nice-to-have taken as decision 15 (lag smoothing during the opening); the other (flight label
   0.95 instead of 1.05) declined, the beat is the reading time.
+- Round 3 (fresh critic, acceptance, on its own re-shoot, a CSS diff against the commit before the
+  branch, and a timeline-locked probe): 7/10, NOT SATISFIED. New eyes caught what two rounds had
+  stopped seeing: the name flew through the still-visible greeting for about 100 ms. Addressed in
+  decision 16 and guarded by the new sweep in `tools/intro_check.py`. The three nice-to-haves
+  (wordmark hit area, smoothing until the hero completes, the mobile lockup gap) taken as decisions
+  17 and 18. Confirmed by the same critic: first paint reads as a fade-in, the lockup is optically
+  centred at both widths, the settled page is identical to `main` except the wordmark's box.
