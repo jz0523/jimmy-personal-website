@@ -226,12 +226,16 @@ if (!prefersReduced && reveals.length) {
    variable rather than the frame's transform, and the resting angle stays the stylesheet's. ---------- */
 const landing = gsap.utils.toArray<HTMLElement>(".photo-land");
 if (!prefersReduced && landing.length) {
-  const rest = new WeakMap<HTMLElement, number>();
+  const rest = new WeakMap<HTMLElement, { deg: number; rise: number }>();
   landing.forEach((el) => {
     const deg = parseFloat(getComputedStyle(el).getPropertyValue("--rot")) || 0;
-    rest.set(el, deg);
-    // It arrives further over than it ends up, the way the hero's prints do.
-    gsap.set(el, { y: 52, opacity: 0, "--rot": `${deg + (deg < 0 ? -4 : 4)}deg` });
+    // Both amounts are the print's own, not a constant: the hero scales its overshoot to each print's
+    // resting tilt, and the rise follows the frame's height, so a small print does not travel further
+    // or swing wider than a large one.
+    const frame = el.querySelector<HTMLElement>(".photo-frame");
+    const rise = Math.min(56, Math.round((frame?.offsetHeight || el.offsetHeight) * 0.13));
+    rest.set(el, { deg, rise });
+    gsap.set(el, { y: rise, opacity: 0, "--rot": `${deg + (deg === 0 ? 3 : deg * 1.6)}deg` });
   });
   ScrollTrigger.batch(landing, {
     start: "top 88%",
@@ -240,11 +244,15 @@ if (!prefersReduced && landing.length) {
       gsap.to(els, {
         y: 0,
         opacity: 1,
-        "--rot": (_i: number, target: HTMLElement) => `${rest.get(target) ?? 0}deg`,
-        duration: 1.15,
+        "--rot": (_i: number, target: HTMLElement) => `${rest.get(target)?.deg ?? 0}deg`,
+        duration: 1,
         ease: "power4.out",
-        stagger: 0.14,
+        // Only prints that cross the line together are staggered, and then it has to be long enough to
+        // read: at 0.14 the first was half landed when the second left. Where prints sit far apart the
+        // layout already spaces them by a third of a second or more at reading speed.
+        stagger: 0.32,
         overwrite: true,
+        onComplete: () => gsap.set(els, { clearProps: "transform,--rot,opacity" }),
       }),
   });
 }
