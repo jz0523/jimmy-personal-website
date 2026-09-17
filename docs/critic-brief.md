@@ -8,7 +8,7 @@ failing on its own terms.
 
 A single-page recruiting portfolio (Vite, GSAP ScrollTrigger, Lenis). Light paper ground
 (#f4f4f1), ink text (#16171c), one cobalt accent (#2f55d4), the owner's own photos as the
-identity anchors. Sections in order: Hero, Experience, Selected work (sticky card stack), About,
+identity anchors. Sections in order: Hero, About, Experience, Selected work (sticky card stack),
 Off the clock (pinned horizontal photo strip), Research/awards/leadership (bento), Toolbox,
 Contact (with a WebGL point field behind the right half).
 
