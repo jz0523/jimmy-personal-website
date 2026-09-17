@@ -221,6 +221,34 @@ if (!prefersReduced && reveals.length) {
   });
 }
 
+/* ---------- Prints land one at a time where they sit in a group: About's two, Experience's two.
+   The tilt lives in CSS as --rot on the figure and the frame inherits it, so the landing tweens that
+   variable rather than the frame's transform, and the resting angle stays the stylesheet's. ---------- */
+const landing = gsap.utils.toArray<HTMLElement>(".photo-land");
+if (!prefersReduced && landing.length) {
+  const rest = new WeakMap<HTMLElement, number>();
+  landing.forEach((el) => {
+    const deg = parseFloat(getComputedStyle(el).getPropertyValue("--rot")) || 0;
+    rest.set(el, deg);
+    // It arrives further over than it ends up, the way the hero's prints do.
+    gsap.set(el, { y: 52, opacity: 0, "--rot": `${deg + (deg < 0 ? -4 : 4)}deg` });
+  });
+  ScrollTrigger.batch(landing, {
+    start: "top 88%",
+    once: true,
+    onEnter: (els) =>
+      gsap.to(els, {
+        y: 0,
+        opacity: 1,
+        "--rot": (_i: number, target: HTMLElement) => `${rest.get(target) ?? 0}deg`,
+        duration: 1.15,
+        ease: "power4.out",
+        stagger: 0.14,
+        overwrite: true,
+      }),
+  });
+}
+
 /* ---------- Work: sticky stack. Each project holds the frame until the next one arrives. ---------- */
 const mm = gsap.matchMedia();
 mm.add(
