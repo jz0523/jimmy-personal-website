@@ -227,20 +227,29 @@ if (!prefersReduced && reveals.length) {
 const landing = gsap.utils.toArray<HTMLElement>(".photo-land");
 if (!prefersReduced && landing.length) {
   const rest = new WeakMap<HTMLElement, { deg: number; rise: number }>();
-  landing.forEach((el) => {
-    const deg = parseFloat(getComputedStyle(el).getPropertyValue("--rot")) || 0;
-    // Both amounts are the print's own, not a constant: the hero scales its overshoot to each print's
-    // resting tilt, and the rise follows the frame's height, so a small print does not travel further
-    // or swing wider than a large one.
+  const landed = new WeakSet<HTMLElement>();
+  // Both amounts are the print's own, not a constant: the hero scales its overshoot to each print's
+  // resting tilt, and the rise follows the frame's height, so a small print does not travel further
+  // or swing wider than a large one. The floor keeps the smallest print from arriving on a fade alone.
+  const arm = (el: HTMLElement) => {
+    // On a re-arm the inline --rot is the armed angle, so the resting one comes from the first pass.
+    const known = rest.get(el);
+    const deg = known ? known.deg : parseFloat(getComputedStyle(el).getPropertyValue("--rot")) || 0;
     const frame = el.querySelector<HTMLElement>(".photo-frame");
-    const rise = Math.min(56, Math.round((frame?.offsetHeight || el.offsetHeight) * 0.13));
+    const rise = Math.max(18, Math.min(56, Math.round((frame?.offsetHeight || el.offsetHeight) * 0.13)));
     rest.set(el, { deg, rise });
-    gsap.set(el, { y: rise, opacity: 0, "--rot": `${deg + (deg === 0 ? 3 : deg * 1.6)}deg` });
+    gsap.set(el, { y: rise, opacity: 0, "--rot": `${+(deg + (deg === 0 ? 3 : deg * 1.6)).toFixed(2)}deg` });
+  };
+  landing.forEach(arm);
+  // Someone who narrows the window before scrolling would otherwise keep the wider layout's rise.
+  ScrollTrigger.addEventListener("refresh", () => {
+    for (const el of landing) if (!landed.has(el)) arm(el);
   });
   ScrollTrigger.batch(landing, {
     start: "top 88%",
     once: true,
-    onEnter: (els) =>
+    onEnter: (els) => {
+      for (const el of els) landed.add(el as HTMLElement);
       gsap.to(els, {
         y: 0,
         opacity: 1,
@@ -248,12 +257,16 @@ if (!prefersReduced && landing.length) {
         duration: 1,
         ease: "power4.out",
         // Only prints that cross the line together are staggered, and then it has to be long enough to
-        // read: at 0.14 the first was half landed when the second left. Where prints sit far apart the
-        // layout already spaces them by a third of a second or more at reading speed.
+        // read: at 0.14 the first was half landed when the second left. Where prints sit apart the
+        // layout already spaces them by 280 ms or more at reading speed, and never out of order.
         stagger: 0.32,
         overwrite: true,
-        onComplete: () => gsap.set(els, { clearProps: "transform,--rot,opacity" }),
-      }),
+        onComplete: () => {
+          gsap.set(els, { clearProps: "transform,--rot,opacity" });
+          for (const el of els) (el as HTMLElement).removeAttribute("style");
+        },
+      });
+    },
   });
 }
 
