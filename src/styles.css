@@ -245,6 +245,15 @@ button {
   padding: 0 18px;
   font-size: 0.9rem;
 }
+.btn-icon {
+  width: 50px;
+  padding: 0;
+}
+.btn-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: currentColor;
+}
 
 /* ---------- Nav ---------- */
 .nav {
@@ -481,9 +490,6 @@ html.js .hero-anim {
   width: 42%;
   aspect-ratio: 4 / 5;
   --rot: -6deg;
-}
-.ph-back-l img {
-  object-position: 65% 45%;
 }
 .ph-back-r {
   z-index: 2;
